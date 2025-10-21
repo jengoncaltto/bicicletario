@@ -9,8 +9,7 @@ import com.bikeunirio.bicicletario.aluguel.webservice.ExampleCpfValidationClient
 
 @Service
 public class FuncionarioService {
-    /*
-     * add: @Autowired private FuncionarioRepository repository;
+    /* * add: @Autowired private FuncionarioRepository repository;
      */
 
     @Autowired
@@ -23,8 +22,7 @@ public class FuncionarioService {
         }
 
         // Verifica duplicidade
-        /*
-         * add: if (repository.existsByEmail(request.getEmail())) { throw new IllegalArgumentException("Email já cadastrado"); }
+        /* * add: if (repository.existsByEmail(request.getEmail())) { throw new IllegalArgumentException("Email já cadastrado"); }
          * add: if (repository.existsByCpf(request.getCpf())) { throw new IllegalArgumentException("CPF já cadastrado"); }
          */
 
@@ -34,6 +32,7 @@ public class FuncionarioService {
 
         // Cria entidade
         Funcionario funcionario = new Funcionario();
+        funcionario.setId((long) (Math.random() * 1000));
         funcionario.setNome(request.getNome());
         funcionario.setEmail(request.getEmail());
         funcionario.setIdade(request.getIdade());

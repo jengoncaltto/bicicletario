@@ -1,7 +1,7 @@
 version: 0.0
 os: linux
 files:
-  - source: /target/projeto-base-spring-boot.jar
+  - source: /target/aluguel.jar
     destination: /opt
 
 hooks:

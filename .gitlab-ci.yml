@@ -24,9 +24,12 @@ build:
   image: maven:3.8.3-openjdk-17
   artifacts:
     paths:
-      - target/
+      - target/aluguel.jar
+      - appspec.yml
+      - scripts/
+    expire_in: 1 day
   script:
-    - mvn clean verify -Dsonar.skip=true -DskipTests=true install
+    - mvn clean install -Dsonar.skip=true -DskipTests=true
   only:
     - main
 
@@ -34,9 +37,20 @@ aws-deploy:
   stage: deploy
   image: registry.gitlab.com/gitlab-org/cloud-deploy/aws-base:latest
   script:
-   - aws deploy push --application-name unirio-pm-projetos-base --s3-location s3://unirio-pm-projetos-base/projeto-base-spring-boot.zip --source .
-   - aws deploy create-deployment --application-name unirio-pm-projetos-base --deployment-group-name projeto-base-spring-boot --s3-location bucket=unirio-pm-projetos-base,key=projeto-base-spring-boot.zip,bundleType=zip
+    - mkdir deploy_package
+    
+    - cp target/aluguel.jar deploy_package/aluguel.jar
+    - cp appspec.yml deploy_package/appspec.yml
+    
+    - cp -r scripts/ deploy_package/scripts/
+
+    - cd deploy_package
+    - zip -r ../aluguel.zip .
+    - cd ..
+    
+    - aws deploy push --application-name bicicletario-aluguel --s3-location s3://bicicletario-aluguel/aluguel.zip --source aluguel.zip
+    - aws deploy create-deployment --application-name bicicletario-aluguel --deployment-group-name bicicletario --s3-location bucket=bicicletario-aluguel,key=aluguel.zip,bundleType=zip
   only:
     - main
-  dependencies: 
+  dependencies:
     - build

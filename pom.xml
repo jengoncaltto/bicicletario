@@ -13,7 +13,7 @@
 	<version>1.0</version>
 	
 	<name>aluguel</name>
-	<description>Microsserviço responsável pelo gerenciamento de aluguéis de bicicletas</description>
+    <description>Microsserviço responsável pelo gerenciamento de aluguéis de bicicletas</description>
 	
 	<properties>
     	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

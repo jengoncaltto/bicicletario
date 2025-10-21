@@ -2,8 +2,8 @@ FROM openjdk:17-jdk-alpine
 
 WORKDIR /app
 
-COPY target/projeto-base-spring-boot.jar projeto-base-spring-boot.jar
+COPY target/aluguel.jar aluguel.jar
 
 EXPOSE 80
 
-ENTRYPOINT ["java", "-jar", "projeto-base-spring-boot.jar"]
+ENTRYPOINT ["java", "-jar", "aluguel.jar"]

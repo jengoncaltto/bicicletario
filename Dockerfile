@@ -1,9 +1,9 @@
-FROM openjdk:17-jdk-alpine
+FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
 
-COPY target/aluguel.jar aluguel.jar
+COPY target/*.jar app.jar
 
-EXPOSE 80
+EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "aluguel.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/funcionario")
 public class FuncionarioController {
 
-	@GetMapping("/{idFuncionario}")
-	public String getFuncionarioPorId (@PathVariable (value ="palavra") String idFuncionario){
-		return "Olá mundo!";					
-	}
-	
+    @GetMapping("/{idFuncionario}")
+    public String getFuncionarioPorId(@PathVariable(value = "idFuncionario") String idFuncionario) {
+        return "Olá mundo!";
+    }
+
 }

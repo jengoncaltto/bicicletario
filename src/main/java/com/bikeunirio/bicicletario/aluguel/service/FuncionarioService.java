@@ -1,46 +1,46 @@
 package com.bikeunirio.bicicletario.aluguel.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.bikeunirio.bicicletario.aluguel.dto.FuncionarioRequest;
 import com.bikeunirio.bicicletario.aluguel.entity.Funcionario;
-import com.bikeunirio.bicicletario.aluguel.webservice.ExampleCpfValidationClient;
 
 @Service
 public class FuncionarioService {
-    /* * add: @Autowired private FuncionarioRepository repository;
-     */
+    public Funcionario buscarFuncionarioPorId(Long id) {
 
-    @Autowired
-    private ExampleCpfValidationClient cpfClient;
-
-    public Funcionario cadastrarFuncionario(FuncionarioRequest request) {
-        // Verifica senha
-        if (!request.getSenha().equals(request.getConfirmacaoSenha())) {
-            throw new IllegalArgumentException("Senhas não coincidem");
+        // Simulação de busca.
+        if (id != null && id.equals(1L)) {
+            Funcionario funcionario = new Funcionario();
+            funcionario.setId(1L);
+            funcionario.setNome("Funcionario Mock 1");
+            funcionario.setEmail("mock1@unirio.br");
+            funcionario.setFuncao("Atendente");
+            return funcionario;
         }
 
-        // Verifica duplicidade
-        /* * add: if (repository.existsByEmail(request.getEmail())) { throw new IllegalArgumentException("Email já cadastrado"); }
-         * add: if (repository.existsByCpf(request.getCpf())) { throw new IllegalArgumentException("CPF já cadastrado"); }
-         */
+        return null; // Funcionário não encontrado
+    }
 
-        if (!cpfClient.validarCpf(request.getCpf())) {
-            throw new IllegalArgumentException("CPF inválido segundo serviço externo");
+    public Funcionario cadastrarFuncionario(Funcionario funcionario) {
+
+        if (funcionario.getNome() == null || funcionario.getNome().trim().isEmpty()) {
+            throw new IllegalArgumentException("O nome do funcionário é obrigatório para o cadastro.");
         }
 
-        // Cria entidade
-        Funcionario funcionario = new Funcionario();
-        funcionario.setId((long) (Math.random() * 1000));
-        funcionario.setNome(request.getNome());
-        funcionario.setEmail(request.getEmail());
-        funcionario.setIdade(request.getIdade());
-        funcionario.setFuncao(request.getFuncao());
-        funcionario.setCpf(request.getCpf());
-        funcionario.setSenha(request.getSenha()); // ideal criptografar
+        if (funcionario.getEmail() == null || funcionario.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("O e-mail do funcionário é obrigatório para o cadastro.");
+        }
 
-        // trocar por: return repository.save(funcionario);
+        if (funcionario.getCpf() == null || funcionario.getCpf().trim().isEmpty()) {
+            throw new IllegalArgumentException("O CPF do funcionário é obrigatório para o cadastro.");
+        }
+
+        if (funcionario.getId() == null) {
+            funcionario.setId(99L);
+        }
+
+        System.out.println("Funcionario (Mock) cadastrado: " + funcionario.getNome());
+
         return funcionario;
     }
 }

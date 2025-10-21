@@ -2,85 +2,97 @@ package com.bikeunirio.bicicletario.aluguel.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
-import com.bikeunirio.bicicletario.aluguel.dto.FuncionarioRequest;
 import com.bikeunirio.bicicletario.aluguel.entity.Funcionario;
-import com.bikeunirio.bicicletario.aluguel.webservice.ExampleCpfValidationClient;
 
 public class FuncionarioServiceTest {
 
-    /* * * @Mock private FuncionarioRepository repository; */
-
-    @Mock
-    private ExampleCpfValidationClient cpfClient;
-
-    @InjectMocks
     private FuncionarioService service;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        this.service = new FuncionarioService();
     }
 
     @Test
-    void deveCadastrarERetornarFuncionarioQuandoCpfValidoESenhasCoincidem() {
-        FuncionarioRequest request = new FuncionarioRequest();
-        request.setNome("Maria");
-        request.setEmail("maria@example.com");
-        request.setCpf("12345678901");
-        request.setSenha("senha123");
-        request.setConfirmacaoSenha("senha123");
+    void deveRetornarFuncionarioQuandoIdForUm() {
+        Long idEsperado = 1L;
 
-        when(cpfClient.validarCpf(request.getCpf())).thenReturn(true);
+        Funcionario resultado = service.buscarFuncionarioPorId(idEsperado);
 
-        Funcionario resultado = service.cadastrarFuncionario(request);
-
-        assertNotNull(resultado, "O objeto Funcionario não deve ser nulo.");
-        assertNotNull(resultado.getId(), "O ID deve ser gerado.");
-        assertEquals(request.getNome(), resultado.getNome(), "O nome deve ser o mesmo do request.");
-
-        verify(cpfClient, times(1)).validarCpf(request.getCpf());
+        assertNotNull(resultado, "O funcionário não deve ser nulo para o ID 1L.");
+        assertEquals(idEsperado, resultado.getId(), "O ID retornado deve ser 1L.");
+        assertEquals("Funcionario Mock 1", resultado.getNome(), "O nome deve ser o mock esperado.");
     }
 
     @Test
-    void deveLancarExceptionQuandoSenhasNaoCoincidem() {
-        FuncionarioRequest request = new FuncionarioRequest();
-        request.setSenha("123");
-        request.setConfirmacaoSenha("456");
+    void deveRetornarNullQuandoIdDiferenteDeUm() {
+        Long idInvalido = 99L;
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            service.cadastrarFuncionario(request);
-        });
+        Funcionario resultado = service.buscarFuncionarioPorId(idInvalido);
 
-        assertEquals("Senhas não coincidem", exception.getMessage());
-        verify(cpfClient, times(0)).validarCpf(anyString());
+        assertNull(resultado, "O funcionário deve ser nulo para um ID diferente de 1L.");
     }
 
     @Test
-    void deveLancarExceptionQuandoCpfInvalido() {
-        FuncionarioRequest request = new FuncionarioRequest();
-        request.setSenha("123");
-        request.setConfirmacaoSenha("123");
-        request.setCpf("99999999999"); // CPF de teste
+    void deveRetornarNullQuandoIdForNulo() {
+        Funcionario resultado = service.buscarFuncionarioPorId(null);
 
-        when(cpfClient.validarCpf(request.getCpf())).thenReturn(false);
+        assertNull(resultado, "O funcionário deve ser nulo quando o ID for nulo.");
+    }
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            service.cadastrarFuncionario(request);
-        });
+    @Test
+    void deveCadastrarFuncionarioComSucessoAtribuirIdFalso() {
+        Funcionario novoFuncionario = new Funcionario();
+        novoFuncionario.setNome("Novo Funcionário");
+        novoFuncionario.setEmail("novo@teste.com");
+        novoFuncionario.setCpf("11122233344");
 
-        assertEquals("CPF inválido segundo serviço externo", exception.getMessage());
-        verify(cpfClient, times(1)).validarCpf(request.getCpf());
+        Funcionario resultado = service.cadastrarFuncionario(novoFuncionario);
+
+        assertNotNull(resultado, "O resultado do cadastro não deve ser nulo.");
+        assertEquals(99L, resultado.getId(), "Um ID falso (99L) deve ser atribuído ao novo funcionário.");
+        assertEquals("Novo Funcionário", resultado.getNome(), "O nome deve ser mantido.");
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoNomeForNulo() {
+        Funcionario novoFuncionario = new Funcionario();
+        novoFuncionario.setEmail("valido@teste.com");
+        novoFuncionario.setCpf("11122233344");
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.cadastrarFuncionario(novoFuncionario);
+        }, "Deve lançar exceção quando o Nome for nulo.");
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoEmailForVazio() {
+        Funcionario novoFuncionario = new Funcionario();
+        novoFuncionario.setNome("Nome Valido");
+        novoFuncionario.setEmail(" "); // E-mail vazio (trim().isEmpty() deve capturar)
+        novoFuncionario.setCpf("11122233344");
+
+        IllegalArgumentException excecao = assertThrows(IllegalArgumentException.class, () -> {
+            service.cadastrarFuncionario(novoFuncionario);
+        }, "Deve lançar exceção quando o Email for vazio.");
+
+        assertEquals("O e-mail do funcionário é obrigatório para o cadastro.", excecao.getMessage());
+    }
+
+    @Test
+    void deveLancarExcecaoQuandoCpfForNulo() {
+        Funcionario novoFuncionario = new Funcionario();
+        novoFuncionario.setNome("Nome Valido");
+        novoFuncionario.setEmail("valido@teste.com");
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.cadastrarFuncionario(novoFuncionario);
+        }, "Deve lançar exceção quando o CPF for nulo.");
     }
 }

@@ -17,13 +17,6 @@ public class FuncionarioService {
     @Autowired
     private ExampleCpfValidationClient cpfClient;
 
-    public void exemplo() {
-        String cpf = "12345678901";
-        boolean valido = cpfClient.validarCpf(cpf);
-        System.out.println("CPF válido? " + valido);
-    }
-
-
     public Funcionario cadastrarFuncionario(FuncionarioRequest request) {
         // Verifica senha
         if (!request.getSenha().equals(request.getConfirmacaoSenha())) {
@@ -36,6 +29,10 @@ public class FuncionarioService {
         }
         if (repository.existsByCpf(request.getCpf())) {
             throw new IllegalArgumentException("CPF já cadastrado");
+        }
+
+        if(!cpfClient.validarCpf(request.getCpf())){
+            throw new IllegalArgumentException("CPF inválido segundo serviço externo");
         }
 
         // Cria entidade

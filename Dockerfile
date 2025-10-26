@@ -1,4 +1,4 @@
-FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
+FROM maven:3.9.6-eclipse-temurin-18-alpine AS build
 
 WORKDIR /app
 
@@ -11,7 +11,7 @@ FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
-COPY --from=build /app/target/aluguel.jar app.jar
+COPY --from=build /app/target/equipamentos.jar app.jar
 
 EXPOSE 8080
 

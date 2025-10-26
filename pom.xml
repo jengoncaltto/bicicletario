@@ -7,22 +7,22 @@
 		<version>3.3.0</version>
 		<relativePath />
 	</parent>
-	
+
 	<groupId>com.bikeunirio.bicicletario</groupId>
-	<artifactId>aluguel</artifactId>
+	<artifactId>equipamentos</artifactId>
 	<version>1.0</version>
-	
-	<name>aluguel</name>
-    <description>Microsserviço responsável pelo gerenciamento de aluguéis de bicicletas</description>
-	
+
+    <name>equipamentos</name>
+    <description>Microsserviço responsável pelo gerenciamento de equipamentos do biciletário</description>
+
 	<properties>
     	<java.version>18</java.version>
     	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    	
-		<sonar.organization>araujobtc</sonar.organization>
-		<sonar.projectKey>araujobtc_bicicletario</sonar.projectKey>
+
+        <sonar.organization>jengoncaltto</sonar.organization>
+        <sonar.projectKey>jengoncaltto_bicicletario</sonar.projectKey>
 	</properties>
-	
+
 	<dependencies>
 		<!-- API REST -->
 		<dependency>

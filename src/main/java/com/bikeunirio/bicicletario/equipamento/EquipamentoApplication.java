@@ -1,13 +1,13 @@
-package com.bikeunirio.bicicletario.aluguel; 
+package com.bikeunirio.bicicletario.equipamento;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class AluguelApplication {
+public class EquipamentoApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AluguelApplication.class, args);
+		SpringApplication.run(EquipamentoApplication.class, args);
 	}
 
 }

@@ -17,6 +17,8 @@
 
 	<properties>
         <sonar.organization>jengoncaltto</sonar.organization>
+        <sonar.projectKey>jengoncaltto_bicicletario</sonar.projectKey>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url><sonar.organization>jengoncaltto</sonar.organization>
 	</properties>
 	<dependencies>
 		<!-- API REST -->

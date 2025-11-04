@@ -37,4 +37,4 @@ jobs:
                   -Dsonar.projectKey=jengoncaltto_bicicletario \
                    -Dsonar.organization=jengoncaltto \
                     -Dsonar.host.url=https://sonarcloud.io \
-                      -Dsonar.login=${{e5a7687d0b54f244aa0656532a98509058325b6d}}
+                      -Dsonar.login=${{SONAR_TOKEN}}

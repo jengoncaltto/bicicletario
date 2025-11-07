@@ -2,7 +2,6 @@ package com.bikeunirio.bicicletario.equipamento.entity;
 
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
 import jakarta.persistence.*;
-import lombok.Data;
 
 @Entity
 @Table(name = "tranca")

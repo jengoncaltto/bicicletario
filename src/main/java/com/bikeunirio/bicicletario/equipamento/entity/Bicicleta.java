@@ -1,33 +1,42 @@
 package com.bikeunirio.bicicletario.equipamento.entity;
 
-import jakarta.persistence.Entity;
+import com.bikeunirio.bicicletario.equipamento.enums.StatusBicicleta;
+import jakarta.persistence.*;
 
 @Entity
+@Table(name = "bicicleta")
 public class Bicicleta {
-    Integer id;
-    String marca;
-    String modelo;
-    String ano;
-    Integer numero;
-    String status;
 
-    public Bicicleta() {
-    }
-    public Bicicleta(Integer id, String marca, String modelo, String ano, Integer numero, String status) {
-        this.id = id;
-        this.marca = marca;
-        this.modelo = modelo;
-        this.ano = ano;
-        this.numero = numero;
-        this.status = status;
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    public Integer getId() {
+    @Column(nullable = false)
+    private String marca;
+
+    @Column(nullable = false)
+    private String modelo;
+
+    @Column(nullable = false)
+    private String ano;
+
+    @Column(unique = true, nullable = false)
+    private Integer numero;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private StatusBicicleta status;
+
+    @Column(name = "tranca_id")
+    private Long trancaId;
+
+    @Column(name = "totem_id")
+    private Long totemId;
+
+    public Bicicleta() {}
+
+    public Long getId() {
         return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
     }
 
     public String getMarca() {
@@ -62,11 +71,27 @@ public class Bicicleta {
         this.numero = numero;
     }
 
-    public String getStatus() {
+    public StatusBicicleta getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusBicicleta status) {
         this.status = status;
+    }
+
+    public Long getTrancaId() {
+        return trancaId;
+    }
+
+    public void setTrancaId(Long trancaId) {
+        this.trancaId = trancaId;
+    }
+
+    public Long getTotemId() {
+        return totemId;
+    }
+
+    public void setTotemId(Long totemId) {
+        this.totemId = totemId;
     }
 }

@@ -16,7 +16,7 @@ public class BicicletaService {
         this.repository = repository;
     }
 
-    public List<Bicicleta> listar() {
+    public List<Bicicleta> listarBicicletas() {
         return repository.findAll();
     }
 

@@ -20,5 +20,11 @@ public class BicicletaService {
         return repository.findAll();
     }
 
+    public Bicicleta cadastrarBicicleta(Bicicleta bicicleta) {
+        if (bicicleta.getMarca() == null || bicicleta.getModelo() == null) {
+            throw new IllegalArgumentException("Marca e modelo são obrigatórios.");
+        }
+        return repository.save(bicicleta);
+    }
 
 }

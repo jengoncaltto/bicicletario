@@ -2,28 +2,44 @@ package com.bikeunirio.bicicletario.equipamento.controller;
 
 import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import com.bikeunirio.bicicletario.equipamento.service.BicicletaService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/bicicleta")
 public class BicicletaController {
 
-    private BicicletaService  service;
-    public BicicletaController(BicicletaService service) {}
+    @Autowired
+    private BicicletaService service;
 
     @GetMapping
-    public List<Bicicleta> listarBicicletas() {
+    public ResponseEntity<List<Bicicleta>> listarBicicletas() {
         List<Bicicleta> bicicletas = service.listarBicicletas();
-        if(bicicletas.isEmpty()){
-            return null;
+        if (bicicletas.isEmpty()) {
+            return ResponseEntity.noContent().build(); // 204
         }
-        return bicicletas;
+        return ResponseEntity.ok(bicicletas);
     }
 
     @PostMapping
-    public void cadastrarBicicleta(@RequestBody Bicicleta bicicleta) {}
+    public ResponseEntity<Object> cadastrarBicicleta(@RequestBody Bicicleta bicicleta) {
+        try {
+            Bicicleta novaBicicleta = service.cadastrarBicicleta(bicicleta);
+            return ResponseEntity.ok(novaBicicleta);
+        } catch (IllegalArgumentException e) {
+            // Caso os dados sejam inválidos
+            return ResponseEntity.unprocessableEntity()
+                    .body(List.of(Map.of(
+                            "codigo", "DADOS_INVALIDOS",
+                            "mensagem", e.getMessage()
+                    )));
+        }
+    }
 
     @PostMapping("/integrarNaRede")
     public void integrarBicicletaNaRede(@RequestBody Bicicleta bicicleta) {}

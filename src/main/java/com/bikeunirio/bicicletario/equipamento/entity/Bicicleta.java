@@ -94,4 +94,5 @@ public class Bicicleta {
     public void setTotemId(Long totemId) {
         this.totemId = totemId;
     }
+
 }

@@ -41,14 +41,26 @@ public class BicicletaController {
         }
     }
 
-    @PostMapping("/integrarNaRede")
-    public void integrarBicicletaNaRede(@RequestBody Bicicleta bicicleta) {}
-
-    @PostMapping("/retirarDaRede")
-    public void retirarBicicletaDaRede(@RequestBody Bicicleta bicicleta) {}
-
     @GetMapping("/{idBicicleta}")
-    public void retornarBicicleta(@PathVariable Long idBicicleta) {}
+    public ResponseEntity<?> retornarBicicleta(@PathVariable Long idBicicleta) {
+        try {
+            Bicicleta bicicleta = service.retornarBicicleta(idBicicleta);
+            return ResponseEntity.ok(bicicleta);
+
+        } catch (IllegalArgumentException e) {
+            // Caso a mensagem indique que não foi encontrada → 404
+            if (e.getMessage().contains("não encontrada")) {
+                return ResponseEntity.status(404).body(
+                        Map.of("codigo", "NAO_ENCONTRADO", "mensagem", e.getMessage())
+                );
+            }
+
+            // Caso contrário → 422
+            return ResponseEntity.status(422).body(
+                    Map.of("codigo", "DADOS_INVALIDOS", "mensagem", e.getMessage())
+            );
+        }
+    }
 
     @PutMapping("/{idBicicleta}")
     public void editarDadosBicicleta(@PathVariable Long idBicicleta) {}
@@ -58,5 +70,11 @@ public class BicicletaController {
 
     @PostMapping("/{idBicicleta}/status/{acao}")
     public void alterarStatusBicicleta(){}
+
+    @PostMapping("/integrarNaRede")
+    public void integrarBicicletaNaRede(@RequestBody Bicicleta bicicleta) {}
+
+    @PostMapping("/retirarDaRede")
+    public void retirarBicicletaDaRede(@RequestBody Bicicleta bicicleta) {}
 
 }

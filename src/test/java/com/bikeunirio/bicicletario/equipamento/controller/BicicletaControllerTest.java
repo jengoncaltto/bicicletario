@@ -73,6 +73,7 @@ class BicicletaControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+
     /*Enpoint: cadastrarBicicleta(@RequestBody Bicicleta bicicleta)*/
     @Test
     void deveCadastrarBicicletaComSucesso() throws Exception {
@@ -121,4 +122,42 @@ class BicicletaControllerTest {
                 .andExpect(jsonPath("$[0].codigo").value("DADOS_INVALIDOS"))
                 .andExpect(jsonPath("$[0].mensagem").value("Marca e modelo são obrigatórios."));
     }
+
+
+    /*Endpoint: retornarBicicleta(@PathVariable long idBicicleta*/
+    @Test
+    void bicicletaRetornarStatus200() throws Exception {
+        Bicicleta bike = new Bicicleta();
+        ReflectionTestUtils.setField(bike, "id", 1L);
+        bike.setMarca("Caloi");
+        bike.setModelo("Elite");
+        bike.setAno("2023");
+        bike.setNumero(123);
+        bike.setStatus(StatusBicicleta.DISPONIVEL);
+
+        // Quando o service for chamado com id 1L, retorna a bike mockada
+        when(service.retornarBicicleta(1L)).thenReturn(bike);
+
+        mockMvc.perform(get("/bicicleta/{idBicicleta}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.marca").value("Caloi"))
+                .andExpect(jsonPath("$.modelo").value("Elite"))
+                .andExpect(jsonPath("$.ano").value("2023"))
+                .andExpect(jsonPath("$.numero").value(123))
+                .andExpect(jsonPath("$.status").value("DISPONIVEL"));
+    }
+
+    @Test
+    void deveRetornar404QuandoBicicletaNaoEncontrada() throws Exception {
+        // Simula o comportamento do service lançando exceção quando não encontra
+        when(service.retornarBicicleta(99L))
+                .thenThrow(new IllegalArgumentException("Bicicleta não encontrada."));
+
+        mockMvc.perform(get("/bicicleta/{idBicicleta}", 99L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.codigo").value("NAO_ENCONTRADO"))
+                .andExpect(jsonPath("$.mensagem").value("Bicicleta não encontrada."));
+    }
+
 }

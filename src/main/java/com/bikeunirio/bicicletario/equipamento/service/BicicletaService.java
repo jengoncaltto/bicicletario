@@ -27,4 +27,16 @@ public class BicicletaService {
         return repository.save(bicicleta);
     }
 
+    public Bicicleta retornarBicicleta(Long idBicicleta) {
+        if (idBicicleta == null) {
+            throw new IllegalArgumentException("Um número é obrigatório.");
+        } else if (idBicicleta < 0) {
+            throw new IllegalArgumentException("Número negativo não é aceito.");
+        }
+
+        return repository.findById(idBicicleta)
+                .orElseThrow(() -> new IllegalArgumentException("Bicicleta não encontrada."));
+    }
+
+
 }

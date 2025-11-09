@@ -21,7 +21,7 @@ public class TrancaController {
     @PostMapping
     public void cadastrarTranca(@RequestBody Tranca tranca){}
 
-    @GetMapping("/{idTranca")
+    @GetMapping("/{idTranca}")
     public void buscarTrancaPorId(@PathVariable int idTranca){}
 
     @PutMapping("/{idTranca}")

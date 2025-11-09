@@ -12,9 +12,6 @@ public class BicicletaService {
 
     @Autowired
     private BicicletaRepository repository;
-    public void setRepository(BicicletaRepository repository) {
-        this.repository = repository;
-    }
 
     public List<Bicicleta> listarBicicletas() {
         return repository.findAll();
@@ -37,6 +34,5 @@ public class BicicletaService {
         return repository.findById(idBicicleta)
                 .orElseThrow(() -> new IllegalArgumentException("Bicicleta não encontrada."));
     }
-
 
 }

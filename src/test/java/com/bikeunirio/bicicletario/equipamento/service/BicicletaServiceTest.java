@@ -25,22 +25,30 @@ class BicicletaServiceTest {
     @InjectMocks
     private BicicletaService service;
 
-    @Test
-    void deveListarBicicletasComSucesso() {
-        Bicicleta bike = new Bicicleta();
-        bike.setModelo("Caloi");
+    /* listarBicicletas */
 
+    @Test
+    void RetornarListaBicicletas() {
+        Bicicleta bike = new Bicicleta();
+        bike.setMarca("Caloi");
+
+        // Quando o metodo findAll() do repositorio for chamado dentro do service, retorne uma lista contendo a bike
         when(repository.findAll()).thenReturn(List.of(bike));
 
         List<Bicicleta> resultado = service.listarBicicletas();
 
+        // Como o metodo so retorna o resultado do repositorio, nao e necessario verificar todos os campos
+        // basta checar alguns valores e se o repositorio foi chamado corretamente.
+
         assertEquals(1, resultado.size());
-        assertEquals("Caloi", resultado.get(0).getModelo());
+        assertEquals("Caloi", resultado.get(0).getMarca());
+
+        // verificando interacoes, se o metodo do mock foi realmente chamado
         verify(repository, times(1)).findAll();
     }
 
     @Test
-    void deveRetornarListaVaziaQuandoNaoHaBicicletas() {
+    void RetornarListaBicicletasVazia() {
         when(repository.findAll()).thenReturn(Collections.emptyList());
 
         List<Bicicleta> resultado = service.listarBicicletas();
@@ -48,4 +56,7 @@ class BicicletaServiceTest {
         assertTrue(resultado.isEmpty());
         verify(repository, times(1)).findAll();
     }
+
+    /*  */
+
 }

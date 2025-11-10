@@ -3,7 +3,8 @@ package com.bikeunirio.bicicletario.equipamento.enums;
 public enum StatusBicicleta {
     DISPONIVEL,
     EM_USO,
-    EM_REPARO,
+    NOVA,
     APOSENTADA,
-    NOVA_EM_ESPERA
+    REPARO_SOLICITADO,
+    EM_REPARO
 }

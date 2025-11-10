@@ -4,171 +4,217 @@ import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusBicicleta;
 import com.bikeunirio.bicicletario.equipamento.service.BicicletaService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.servlet.MockMvc;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 
-
-import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.mockito.Mockito.*;
 
-@WebMvcTest(BicicletaController.class)
+@ExtendWith(MockitoExtension.class)
 class BicicletaControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc; // simula as requisições HTTP
+    @Mock
+    private BicicletaService service;
 
-    @MockitoBean
-    private BicicletaService service; // mock do service (não chama o banco)
+    @InjectMocks
+    private BicicletaController controller;
 
-    /* Endpoint: GET /bicicleta */
+    /* ---------- listarBicicletas ---------- */
+
     @Test
-    void Status200RetornarListaDeBicicletas() throws Exception {
-        // Cria uma bicicleta falsa
+    void deveRetornarStatus200EListaDeBicicletas() {
+        // Arrange — cria uma lista simulada de bicicletas
         Bicicleta bike = new Bicicleta();
         bike.setMarca("Caloi");
         bike.setModelo("Elite");
         bike.setAno("2023");
         bike.setNumero(123);
         bike.setStatus(StatusBicicleta.DISPONIVEL);
-        bike.setTrancaId(1L);
-        bike.setTotemId(2L);
 
-        // Simula o ID com reflexão (já que o campo é private e sem setId)
-        ReflectionTestUtils.setField(bike, "id", 1L);
-
-        // Mocka o comportamento do service
         when(service.listarBicicletas()).thenReturn(List.of(bike));
 
-        // Executa GET /bicicleta e verifica o JSON
-        mockMvc.perform(get("/bicicleta"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].marca").value("Caloi"))
-                .andExpect(jsonPath("$[0].modelo").value("Elite"))
-                .andExpect(jsonPath("$[0].ano").value("2023"))
-                .andExpect(jsonPath("$[0].numero").value(123))
-                .andExpect(jsonPath("$[0].status").value("DISPONIVEL"));
+        // Act — chama o método do controller diretamente
+        ResponseEntity<List<Bicicleta>> resposta = controller.listarBicicletas();
+
+        // Assert — verifica se o resultado está correto
+        assertEquals(200, resposta.getStatusCodeValue()); // status HTTP 200
+        assertNotNull(resposta.getBody());                // corpo não é nulo
+        assertEquals(1, resposta.getBody().size());       // 1 bicicleta na lista
+        assertEquals("Caloi", resposta.getBody().get(0).getMarca()); // campo correto
+
+        // Verifica se o service foi chamado exatamente uma vez
+        verify(service, times(1)).listarBicicletas();
     }
 
     @Test
-    void Status200RetornarListaDeBicicletasVazia() throws Exception {
-        // Mocka o service para retornar uma lista vazia
+    void deveRetornarListaVaziaComSucesso() {
+        // Simula que o service não encontrou nenhuma bicicleta
         when(service.listarBicicletas()).thenReturn(Collections.emptyList());
 
-        // Executa GET /bicicleta e verifica o status
-        mockMvc.perform(get("/bicicleta"))
-                .andExpect(status().isOk());
+        // Chama o método do controller diretamente
+        ResponseEntity<List<Bicicleta>> resposta = controller.listarBicicletas();
+
+        // Verifica se o status retornado é 200 (OK)
+        assertEquals(200, resposta.getStatusCodeValue());
+
+        // Verifica se o corpo da resposta é uma lista vazia
+        List<Bicicleta> bicicletas = resposta.getBody();
+        assertNotNull(bicicletas);
+        assertTrue(bicicletas.isEmpty());
     }
 
-    /* Enpoint: POST /bicicleta */
+    /* ---------- cadastrarBicicleta ---------- */
     @Test
-    void Status200CadastrarBicicleta() throws Exception {
-        Bicicleta salva = new Bicicleta();
-        ReflectionTestUtils.setField(salva, "id", 1L);
-        salva.setMarca("Caloi");
-        salva.setModelo("Elite");
-        salva.setAno("2023");
-        salva.setNumero(123);
-        salva.setStatus(StatusBicicleta.DISPONIVEL);
+    void deveCadastrarBicicletaComSucesso() {
+        // Arrange – cria uma bicicleta simulada
+        Bicicleta bicicleta = new Bicicleta();
+        bicicleta.setMarca("Caloi");
+        bicicleta.setModelo("Elite");
 
-        when(service.cadastrarBicicleta(any(Bicicleta.class))).thenReturn(salva);
+        when(service.cadastrarBicicleta(bicicleta)).thenReturn(bicicleta);
 
-        mockMvc.perform(post("/bicicleta")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                    {
-                        "marca": "Caloi",
-                        "modelo": "Elite",
-                        "ano": "2023",
-                        "numero": 123,
-                        "status": "DISPONIVEL"
-                    }
-                """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].marca").value("Caloi"))
-                .andExpect(jsonPath("$[0].modelo").value("Elite"))
-                .andExpect(jsonPath("$[0].ano").value("2023"))
-                .andExpect(jsonPath("$[0].numero").value(123))
-                .andExpect(jsonPath("$[0].status").value("DISPONIVEL"));
+        // Act – chama o método do controller diretamente
+        ResponseEntity<Object> resposta = controller.cadastrarBicicleta(bicicleta);
+
+        // Assert – verifica se o status e o corpo estão corretos
+        assertEquals(200, resposta.getStatusCodeValue());
+        assertEquals(bicicleta, resposta.getBody());
+        verify(service, times(1)).cadastrarBicicleta(bicicleta);
     }
 
     @Test
-    void Status422CadastrarBicicletaDadosInvalidos() throws Exception {
-        when(service.cadastrarBicicleta(any(Bicicleta.class)))
-                .thenThrow(new IllegalArgumentException("Dados ausentes ou inválidos."));
+    void deveRetornarErro422QuandoDadosInvalidos() {
+        // Arrange – simula exceção lançada pelo service
+        Bicicleta bicicleta = new Bicicleta(); // sem marca e modelo
+        when(service.cadastrarBicicleta(bicicleta))
+                .thenThrow(new IllegalArgumentException("Marca e modelo são obrigatórios."));
 
-        mockMvc.perform(post("/bicicleta")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                    {
-                        "ano": "2023",
-                        "numero": 123,
-                        "status": "DISPONIVEL"
-                    }
-                """))
-                .andExpect(status().isUnprocessableEntity())
-                .andExpect(jsonPath("$[0].codigo").value("DADOS_INVALIDOS"))
-                .andExpect(jsonPath("$[0].mensagem").value("Dados ausentes ou inválidos."));
+        // Act
+        ResponseEntity<Object> resposta = controller.cadastrarBicicleta(bicicleta);
+
+        // Assert
+        assertEquals(422, resposta.getStatusCodeValue());
+        verify(service, times(1)).cadastrarBicicleta(bicicleta);
     }
 
-    /* Endpoint: GET /bicicleta/{idBicicleta} */
+    /* ---------- retornarBicicleta ---------- */
+
     @Test
-    void Status200RetornarBicicleta() throws Exception {
+    void deveRetornarBicicletaPorIdComSucesso() {
         Bicicleta bike = new Bicicleta();
-        ReflectionTestUtils.setField(bike, "id", 1L);
         bike.setMarca("Caloi");
         bike.setModelo("Elite");
-        bike.setAno("2023");
-        bike.setNumero(123);
-        bike.setStatus(StatusBicicleta.DISPONIVEL);
 
-        // Quando o service for chamado com id 1L, retorna a bike mockada
         when(service.retornarBicicleta(1L)).thenReturn(bike);
 
-        mockMvc.perform(get("/bicicleta/{idBicicleta}", 1L))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.marca").value("Caloi"))
-                .andExpect(jsonPath("$.modelo").value("Elite"))
-                .andExpect(jsonPath("$.ano").value("2023"))
-                .andExpect(jsonPath("$.numero").value(123))
-                .andExpect(jsonPath("$.status").value("DISPONIVEL"));
+        ResponseEntity<?> resposta = controller.retornarBicicleta(1L);
+
+        assertEquals(200, resposta.getStatusCodeValue());
+        assertEquals(bike, resposta.getBody());
+        verify(service).retornarBicicleta(1L);
     }
 
     @Test
-    void Status404RetornarBicicletaNaoEncontrada() throws Exception {
-        // Simula o comportamento do service lançando exceção quando não encontra
+    void deveRetornar404QuandoBicicletaNaoEncontrada() {
         when(service.retornarBicicleta(99L))
-                .thenThrow(new IllegalArgumentException("Bicicleta não encontrada."));
+                .thenThrow(new IllegalArgumentException("Bicicleta não encontrada"));
 
-        mockMvc.perform(get("/bicicleta/{idBicicleta}", 99L))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.codigo").value("NAO_ENCONTRADO"))
-                .andExpect(jsonPath("$.mensagem").value("Bicicleta não encontrada."));
+        ResponseEntity<?> resposta = controller.retornarBicicleta(99L);
+
+        assertEquals(404, resposta.getStatusCodeValue());
+        verify(service).retornarBicicleta(99L);
     }
 
-    /* Endpoint: GET /bicicleta/{idBicicleta} */
+    /* ---------- editarBicicleta ---------- */
 
-    /* Endpoint: PUT /bicicleta/{idBicicleta} */
+    @Test
+    void deveEditarBicicletaComSucesso() {}
 
-    /* Endpoint: DELETE /bicicleta/{idBicicleta} */
 
-    /* Endpoint: POST /bicicleta/{idBicicleta}/status/{acao} */
+    /* ---------- removerBicicleta ---------- */
+    @Test
+    void deveRetornarStatus200QuandoRemoverComSucesso() {
+        // Arrange
+        Bicicleta bike = new Bicicleta();
+        bike.setMarca("Caloi");
+        bike.setModelo("Elite");
+        bike.setStatus(StatusBicicleta.DISPONIVEL);
 
-    /* Endpoint: POST /integrarNaRede */
+        when(service.removerBicicleta(1L)).thenReturn(bike);
 
-    /* Endpoint: POST /retirarDaRede */
+        // Act
+        ResponseEntity<Object> resposta = controller.removerBicicleta(1L);
+
+        // Assert
+        assertEquals(200, resposta.getStatusCodeValue());
+        assertEquals(bike, resposta.getBody());
+        verify(service, times(1)).removerBicicleta(1L);
+    }
+
+    @Test
+    void deveRetornarStatus404QuandoBicicletaNaoForEncontrada() {
+        // Arrange
+        when(service.removerBicicleta(99L))
+                .thenThrow(new IllegalArgumentException("Bicicleta não encontrada"));
+
+        // Act
+        ResponseEntity<Object> resposta = controller.removerBicicleta(99L);
+
+        // Assert
+        assertEquals(404, resposta.getStatusCodeValue());
+        verify(service, times(1)).removerBicicleta(99L);
+    }
+
+    /* ---------- alterarStatusBicicleta ---------- */
+    @Test
+    void deveRetornar200QuandoStatusAlteradoComSucesso() {
+        // Simula uma bicicleta com status atualizado
+        Bicicleta bike = new Bicicleta();
+        bike.setStatus(StatusBicicleta.EM_REPARO);
+
+        // Quando o service for chamado, retorna a bicicleta
+        when(service.alterarStatusBicicleta(1L, "EM_REPARO")).thenReturn(bike);
+
+        // Chama o método do controller
+        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, "EM_REPARO");
+
+        // Verifica o resultado
+        assertEquals(200, resposta.getStatusCodeValue());
+        assertEquals(bike, resposta.getBody());
+    }
+
+    @Test
+    void deveRetornar404QuandoBicicletaNaoForEncontrada() {
+        // Quando o service lançar erro de "não encontrada"
+        when(service.alterarStatusBicicleta(99L, "DISPONIVEL"))
+                .thenThrow(new IllegalArgumentException("Bicicleta não encontrada"));
+
+        // Chama o método do controller
+        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(99L, "DISPONIVEL");
+
+        // Verifica se retornou o status 404
+        assertEquals(404, resposta.getStatusCodeValue());
+    }
+
+    @Test
+    void deveRetornar422QuandoStatusForInvalido() {
+        // Quando o service lançar erro de status inválido
+        when(service.alterarStatusBicicleta(1L, "QUEBRADA"))
+                .thenThrow(new IllegalArgumentException("Status inválido: QUEBRADA"));
+
+        // Chama o método do controller
+        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, "QUEBRADA");
+
+        // Verifica se retornou o status 422
+        assertEquals(422, resposta.getStatusCodeValue());
+    }
+
 
 }

@@ -1,7 +1,7 @@
 package com.bikeunirio.bicicletario.equipamento.entity;
 
-import com.bikeunirio.bicicletario.equipamento.enums.StatusTotem;
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "totem")
@@ -9,48 +9,32 @@ public class Totem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id; // Mudança para Long
+    private Long id;
 
     @Column(nullable = false)
     private String localizacao;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String descricao;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private StatusTotem status; // Novo campo de status
+    // Um totem possui várias bicicletas
+    @OneToMany(mappedBy = "totem", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Bicicleta> bicicletas;
 
+    // Um totem possui várias trancas
+    @OneToMany(mappedBy = "totem", cascade = CascadeType.ALL, orphanRemoval = false)
+    private List<Tranca> trancas;
 
+    public Totem() {}
 
-    public Long getId() {
-        return id;
-    }
-
-    public StatusTotem getStatus() {
-        return status;
-    }
-
-    // Construtor padrão (obrigatório para JPA)
-    public Totem() {
-    }
-
-    public String getLocalizacao() {
-        return localizacao;
-    }
-
-    public void setLocalizacao(String localizacao) {
-        this.localizacao = localizacao;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-    public void setStatus(StatusTotem status) {
-        this.status = status;
-    }
+    // --- Getters e Setters ---
+    public Long getId() { return id; }
+    public String getLocalizacao() { return localizacao; }
+    public void setLocalizacao(String localizacao) { this.localizacao = localizacao; }
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public List<Bicicleta> getBicicletas() { return bicicletas; }
+    public void setBicicletas(List<Bicicleta> bicicletas) { this.bicicletas = bicicletas; }
+    public List<Tranca> getTrancas() { return trancas; }
+    public void setTrancas(List<Tranca> trancas) { this.trancas = trancas; }
 }

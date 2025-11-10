@@ -23,76 +23,35 @@ public class Bicicleta {
     @Column(unique = true, nullable = false)
     private Integer numero;
 
-    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private StatusBicicleta status;
 
-    @Column(name = "tranca_id")
-    private Long trancaId;
+    // Uma bicicleta está em uma tranca (opcional)
+    @ManyToOne
+    @JoinColumn(name = "tranca_id")
+    private Tranca tranca;
 
-    @Column(name = "totem_id")
-    private Long totemId;
+    // Uma bicicleta pertence a um totem (opcional)
+    @ManyToOne
+    @JoinColumn(name = "totem_id")
+    private Totem totem;
 
     public Bicicleta() {}
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getMarca() {
-        return marca;
-    }
-
-    public void setMarca(String marca) {
-        this.marca = marca;
-    }
-
-    public String getModelo() {
-        return modelo;
-    }
-
-    public void setModelo(String modelo) {
-        this.modelo = modelo;
-    }
-
-    public String getAno() {
-        return ano;
-    }
-
-    public void setAno(String ano) {
-        this.ano = ano;
-    }
-
-    public Integer getNumero() {
-        return numero;
-    }
-
-    public void setNumero(Integer numero) {
-        this.numero = numero;
-    }
-
-    public StatusBicicleta getStatus() {
-        return status;
-    }
-
-    public void setStatus(StatusBicicleta status) {
-        this.status = status;
-    }
-
-    public Long getTrancaId() {
-        return trancaId;
-    }
-
-    public void setTrancaId(Long trancaId) {
-        this.trancaId = trancaId;
-    }
-
-    public Long getTotemId() {
-        return totemId;
-    }
-
-    public void setTotemId(Long totemId) {
-        this.totemId = totemId;
-    }
-
+    public Long getId() { return id; }
+    public String getMarca() { return marca; }
+    public void setMarca(String marca) { this.marca = marca; }
+    public String getModelo() { return modelo; }
+    public void setModelo(String modelo) { this.modelo = modelo; }
+    public String getAno() { return ano; }
+    public void setAno(String ano) { this.ano = ano; }
+    public Integer getNumero() { return numero; }
+    public void setNumero(Integer numero) { this.numero = numero; }
+    public StatusBicicleta getStatus() { return status; }
+    public void setStatus(StatusBicicleta status) { this.status = status; }
+    public Tranca getTranca() { return tranca; }
+    public void setTranca(Tranca tranca) { this.tranca = tranca; }
+    public Totem getTotem() { return totem; }
+    public void setTotem(Totem totem) { this.totem = totem; }
 }

@@ -15,66 +15,96 @@ import java.util.Map;
 public class BicicletaController {
 
     @Autowired
-    private BicicletaService service;
+    private BicicletaService bicicletaService;
 
     @GetMapping
     public ResponseEntity<List<Bicicleta>> listarBicicletas() {
-        List<Bicicleta> bicicletas = service.listarBicicletas();
-        if (bicicletas.isEmpty()) {
-            return ResponseEntity.noContent().build(); // 204
-        }
+        List<Bicicleta> bicicletas = bicicletaService.listarBicicletas();
         return ResponseEntity.ok(bicicletas);
     }
 
     @PostMapping
     public ResponseEntity<Object> cadastrarBicicleta(@RequestBody Bicicleta bicicleta) {
         try {
-            Bicicleta novaBicicleta = service.cadastrarBicicleta(bicicleta);
+            Bicicleta novaBicicleta = bicicletaService.cadastrarBicicleta(bicicleta);
             return ResponseEntity.ok(novaBicicleta);
         } catch (IllegalArgumentException e) {
             // Caso os dados sejam inválidos
-            return ResponseEntity.unprocessableEntity()
-                    .body(List.of(Map.of(
-                            "codigo", "DADOS_INVALIDOS",
-                            "mensagem", e.getMessage()
-                    )));
+            return erro422(e);
         }
     }
 
     @GetMapping("/{idBicicleta}")
-    public ResponseEntity<?> retornarBicicleta(@PathVariable Long idBicicleta) {
+    public ResponseEntity<Object> retornarBicicleta(@PathVariable Long idBicicleta) {
         try {
-            Bicicleta bicicleta = service.retornarBicicleta(idBicicleta);
+            Bicicleta bicicleta = bicicletaService.retornarBicicleta(idBicicleta);
             return ResponseEntity.ok(bicicleta);
+
 
         } catch (IllegalArgumentException e) {
             // Caso a mensagem indique que não foi encontrada → 404
             if (e.getMessage().contains("não encontrada")) {
-                return ResponseEntity.status(404).body(
-                        Map.of("codigo", "NAO_ENCONTRADO", "mensagem", e.getMessage())
-                );
+                return erro404(e);
             }
-
             // Caso contrário → 422
-            return ResponseEntity.status(422).body(
-                    Map.of("codigo", "DADOS_INVALIDOS", "mensagem", e.getMessage())
-            );
+            return erro422(e);
         }
     }
 
     @PutMapping("/{idBicicleta}")
-    public void editarDadosBicicleta(@PathVariable Long idBicicleta) {}
+    public ResponseEntity<Object> editarDadosBicicleta(@PathVariable Long idBicicleta, @RequestBody Bicicleta bicicleta) {
+        try {
+            Bicicleta atualizada = bicicletaService.editarBicicleta(idBicicleta, bicicleta);
+            return ResponseEntity.ok(atualizada);
+        } catch (IllegalArgumentException e) {
+            // Caso a mensagem indique que não foi encontrada → 404
+            if (e.getMessage().contains("não encontrada")) {
+                return erro404(e);
+            }
+            // Caso contrário → 422
+            return erro422(e);
+        }
+    }
 
     @DeleteMapping("/{idBicicleta}")
-    public void removerBicicleta(@PathVariable Long idBicicleta) {}
+    public ResponseEntity<Object> removerBicicleta(@PathVariable Long idBicicleta) {
+        try{
+            Bicicleta excluida = bicicletaService.removerBicicleta(idBicicleta);
+            return ResponseEntity.ok(excluida);
+        }catch (IllegalArgumentException e){
+            return erro404(e);
+        }
+    }
 
     @PostMapping("/{idBicicleta}/status/{acao}")
-    public void alterarStatusBicicleta(){}
+    public ResponseEntity<Object> alterarStatusBicicleta(@PathVariable Long idBicicleta, @PathVariable String acao) {
+        try {
+            Bicicleta atualizada = bicicletaService.alterarStatusBicicleta(idBicicleta, acao);
+            return ResponseEntity.ok(atualizada);
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrada")) {
+                return erro404(e);
+            }
+            return erro422(e);
+        }
+    }
 
-    @PostMapping("/integrarNaRede")
+    /*    @PostMapping("/integrarNaRede")
     public void integrarBicicletaNaRede(@RequestBody Bicicleta bicicleta) {}
 
     @PostMapping("/retirarDaRede")
     public void retirarBicicletaDaRede(@RequestBody Bicicleta bicicleta) {}
+*/
 
+    private ResponseEntity<Object> erro404(IllegalArgumentException e){
+        return ResponseEntity.status(404).body(
+                Map.of("codigo", "NAO ENCONTRADO", "mensagem", e.getMessage())
+        );
+    }
+    private ResponseEntity<Object> erro422(IllegalArgumentException e){
+        return ResponseEntity.status(422).body(
+                Map.of("codigo", "DADOS INVALIDOS", "mensagem", e.getMessage())
+        );
+
+    }
 }

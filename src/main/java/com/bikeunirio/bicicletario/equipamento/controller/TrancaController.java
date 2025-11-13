@@ -3,6 +3,7 @@ package com.bikeunirio.bicicletario.equipamento.controller;
 import com.bikeunirio.bicicletario.equipamento.dto.TrancaDTO;
 
 import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
+import com.bikeunirio.bicicletario.equipamento.entity.Totem;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.service.TrancaService;
 import org.springframework.http.ResponseEntity;
@@ -85,12 +86,6 @@ public class TrancaController {
              }
              if (trancaAtualizada.getStatus() != null) {
                  trancaExistente.setStatus(trancaAtualizada.getStatus());
-             }
-             if (trancaAtualizada.getTotem() != null) {
-                 trancaExistente.setTotem(trancaAtualizada.getTotem());
-             }
-             if (trancaAtualizada.getBicicleta() != null) {
-                 trancaExistente.setBicicleta(trancaAtualizada.getBicicleta());
              }
 
              // 3. Salva a entidade atualizada

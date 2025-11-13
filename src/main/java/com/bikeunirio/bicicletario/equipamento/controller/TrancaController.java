@@ -21,7 +21,6 @@ public class TrancaController {
         this.trancaService = trancaService;
     }
 
-
     //---------- listar todas trancas ----------
     @GetMapping
     public ResponseEntity<List<Tranca>> listarTrancasCadastradas() {

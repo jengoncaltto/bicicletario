@@ -74,30 +74,121 @@ class BicicletaServiceTest {
 
     @Test
     void deveCadastrarBicicletaComSucesso() {
-        // cria uma bicicleta válida
-        Bicicleta bike = new Bicicleta();
-        bike.setMarca("Caloi");
-        bike.setModelo("Elite");
-        bike.setAno("2024");
+        // Arrange
+        Bicicleta bicicleta = new Bicicleta();
+        bicicleta.setMarca("Caloi");
+        bicicleta.setModelo("Elite");
+        bicicleta.setAno("2024");
 
-        // mocka findMaxNumero; Quando alguém chamar repository.findMaxNumero(), devolva o número 10.
-        when(repository.findMaxNumero()).thenReturn(10);
+        Bicicleta salva = new Bicicleta();
+        salva.setMarca("Caloi");
+        salva.setModelo("Elite");
+        salva.setAno("2024");
+        salva.setNumero(1);
+        salva.setStatus(StatusBicicleta.NOVA);
 
-        // simula o comportamento real do repository.save()
-        // devolvendo exatamente o objeto que recebeu
-        when(repository.save(any(Bicicleta.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(repository.findMaxNumero()).thenReturn(null);
+        when(repository.save(any(Bicicleta.class))).thenReturn(salva);
 
-        // executa o método
-        Bicicleta resultado = service.cadastrarBicicleta(bike);
+        // Act
+        Bicicleta resultado = service.cadastrarBicicleta(bicicleta);
 
-        // verifica o retorno
-        assertNotNull(resultado);
+        // Assert
+        assertEquals(StatusBicicleta.NOVA, resultado.getStatus());
+        assertNotNull(resultado.getNumero());
+        verify(repository).save(any(Bicicleta.class));
+    }
 
-        // Confirma que a marca não foi alterada indevidamente.
+    @Test
+    void deveLancarErroQuandoMarcaForNula() {
+        Bicicleta bicicleta = new Bicicleta();
+        bicicleta.setModelo("Elite");
+        bicicleta.setAno("2024");
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.cadastrarBicicleta(bicicleta)
+        );
+
+        assertEquals("Marca é obrigatória.", ex.getMessage());
+    }
+
+    @Test
+    void deveLancarErroQuandoModeloForVazio() {
+        Bicicleta bicicleta = new Bicicleta();
+        bicicleta.setMarca("Caloi");
+        bicicleta.setModelo(" ");
+        bicicleta.setAno("2024");
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.cadastrarBicicleta(bicicleta)
+        );
+
+        assertEquals("Modelo é obrigatório.", ex.getMessage());
+    }
+
+    @Test
+    void deveLancarErroQuandoAnoForNulo() {
+        Bicicleta bicicleta = new Bicicleta();
+        bicicleta.setMarca("Caloi");
+        bicicleta.setModelo("Elite");
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.cadastrarBicicleta(bicicleta)
+        );
+
+        assertEquals("Ano é obrigatório.", ex.getMessage());
+    }
+
+    /* retornarBicicleta */
+
+    @Test
+    void deveRetornarBicicletaQuandoIdForValido() {
+        Bicicleta bicicleta = new Bicicleta();
+        bicicleta.setMarca("Caloi");
+        when(repository.findById(1L)).thenReturn(Optional.of(bicicleta));
+
+        Bicicleta resultado = service.retornarBicicleta(1L);
+
         assertEquals("Caloi", resultado.getMarca());
+        verify(repository).findById(1L);
+    }
 
-        // Verifica se o método repository.save(bike) foi chamado exatamente UMA VEZ.
-        verify(repository, times(1)).save(bike);
+    @Test
+    void deveLancarErroQuandoIdForNulo() {
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.retornarBicicleta(null)
+        );
+
+        assertEquals("Um número é obrigatório.", ex.getMessage());
+        verify(repository, never()).findById(any());
+    }
+
+    @Test
+    void deveLancarErroQuandoIdForNegativo() {
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.retornarBicicleta(-5L)
+        );
+
+        assertEquals("Número negativo não é aceito.", ex.getMessage());
+        verify(repository, never()).findById(any());
+    }
+
+    @Test
+    void deveLancarErroQuandoBicicletaNaoForEncontrada() {
+        when(repository.findById(10L)).thenReturn(Optional.empty());
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> service.retornarBicicleta(10L)
+        );
+
+        assertEquals("não encontrada.", ex.getMessage());
+        verify(repository).findById(10L);
     }
 
     /* editarBicicleta*/
@@ -142,7 +233,6 @@ class BicicletaServiceTest {
         verify(repository).save(existente);
     }
 
-
     @Test
     void lancarExcecaoQuandoBicicletaNaoEncontrada() {
         when(repository.findById(99L)).thenReturn(Optional.empty());
@@ -183,6 +273,29 @@ class BicicletaServiceTest {
         assertThrows(IllegalArgumentException.class, () -> service.removerBicicleta(99L));
 
         verify(repository, never()).delete(any());
+    }
+
+    @Test
+    void deveLancarExcecaoSeBicicletaNaoEncontrada() {
+        when(repository.findById(anyLong())).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> service.removerBicicleta(1L));
+    }
+
+    @Test
+    void deveLancarExcecaoSeBicicletaNaoAposentada() {
+        Bicicleta bike = new Bicicleta();
+        bike.setStatus(StatusBicicleta.EM_USO);
+        when(repository.findById(anyLong())).thenReturn(Optional.of(bike));
+        assertThrows(IllegalArgumentException.class, () -> service.removerBicicleta(1L));
+    }
+
+    @Test
+    void deveLancarExcecaoSeBicicletaPossuirTranca() {
+        Bicicleta bike = new Bicicleta();
+        bike.setStatus(StatusBicicleta.APOSENTADA);
+        bike.setTranca(new Tranca());
+        when(repository.findById(anyLong())).thenReturn(Optional.of(bike));
+        assertThrows(IllegalArgumentException.class, () -> service.removerBicicleta(1L));
     }
 
     /* alterarStatusBicicleta*/
@@ -230,7 +343,7 @@ class BicicletaServiceTest {
 
         when(repository.findById(1L)).thenReturn(Optional.of(bicicleta));
 
-        // ✅ mock do envio de e-mail antes da execução
+        // ✅mock do envio de e-mail antes da execução
         doNothing().when(emailService).enviarEmail(anyString(), anyString(), anyString());
 
         // Act
@@ -244,6 +357,65 @@ class BicicletaServiceTest {
 
         verify(repository).save(bicicleta);
     }
+
+    @Test
+    void deveLancarExcecaoSeBicicletaNaoTemTranca() {
+        Bicicleta bike = new Bicicleta();
+        bike.setTranca(null);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(bike));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.incluirBicicletaNaRede(1L));
+
+        assertEquals("Bicicleta não está associada a nenhuma tranca.", ex.getMessage());
+    }
+
+    @Test
+    void deveLancarExcecaoSeBicicletaEmUso() {
+        Bicicleta bike = new Bicicleta();
+        bike.setTranca(new Tranca());
+        bike.setStatus(StatusBicicleta.EM_USO);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(bike));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.incluirBicicletaNaRede(1L));
+
+        assertEquals("A bicicleta está em uso e não pode ser incluída na rede.", ex.getMessage());
+    }
+
+    @Test
+    void deveLancarExcecaoSeStatusInvalido() {
+        Bicicleta bike = new Bicicleta();
+        bike.setTranca(new Tranca());
+        bike.setStatus(StatusBicicleta.APOSENTADA);
+
+        when(repository.findById(1L)).thenReturn(Optional.of(bike));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.incluirBicicletaNaRede(1L));
+
+        assertEquals("Bicicleta não está apta para inclusão (deve ser NOVA ou EM_REPARO).", ex.getMessage());
+    }
+
+    @Test
+    void deveLancarExcecaoSeTrancaOcupada() {
+        Tranca tranca = new Tranca();
+        tranca.setStatus(StatusTranca.OCUPADA);
+
+        Bicicleta bike = new Bicicleta();
+        bike.setTranca(tranca);
+        bike.setStatus(StatusBicicleta.NOVA); // status válido para passar até a verificação da tranca
+
+        when(repository.findById(1L)).thenReturn(Optional.of(bike));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> service.incluirBicicletaNaRede(1L));
+
+        assertEquals("A tranca selecionada não está disponível.", ex.getMessage());
+    }
+
 
 
     /* ---------- E1: Número da bicicleta inválido ---------- */

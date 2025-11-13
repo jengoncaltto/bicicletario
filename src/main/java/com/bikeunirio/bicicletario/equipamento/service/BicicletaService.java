@@ -1,12 +1,10 @@
 package com.bikeunirio.bicicletario.equipamento.service;
 
 import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
-import com.bikeunirio.bicicletario.equipamento.entity.Totem;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusBicicleta;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
 import com.bikeunirio.bicicletario.equipamento.repository.BicicletaRepository;
-import com.bikeunirio.bicicletario.equipamento.repository.TrancaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,7 @@
 package com.bikeunirio.bicicletario.equipamento.controller;
 
 import com.bikeunirio.bicicletario.equipamento.dto.TrancaDTO;
-import com.bikeunirio.bicicletario.equipamento.dto.TrancaEditarDTO;
+
 import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.service.TrancaService;
@@ -71,17 +71,30 @@ public class TrancaController {
      //---------- editar tranca ----------
      @PutMapping("/{idTranca}")
      public ResponseEntity<Object> editarTranca(@PathVariable Long idTranca,
-                                                @RequestBody TrancaEditarDTO trancaDTO) {
+                                                @RequestBody Tranca trancaAtualizada) {
          try {
              // 1. Busca a tranca existente
-             Tranca trancaAtual = trancaService.buscarPorId(idTranca);
+             Tranca trancaExistente = trancaService.buscarPorId(idTranca);
 
-             // 3. Mapeia os dados do DTO para a entidade *EXISTENTE*
-             trancaAtual.setModelo(trancaDTO.getModelo());
-             trancaAtual.setAnoDeFabricacao(trancaDTO.getAnoDeFabricacao());
+             // 2. Atualiza os campos, exceto id e numero
+             if (trancaAtualizada.getModelo() != null && !trancaAtualizada.getModelo().isBlank()) {
+                 trancaExistente.setModelo(trancaAtualizada.getModelo());
+             }
+             if (trancaAtualizada.getAnoDeFabricacao() != null && !trancaAtualizada.getAnoDeFabricacao().isBlank()) {
+                 trancaExistente.setAnoDeFabricacao(trancaAtualizada.getAnoDeFabricacao());
+             }
+             if (trancaAtualizada.getStatus() != null) {
+                 trancaExistente.setStatus(trancaAtualizada.getStatus());
+             }
+             if (trancaAtualizada.getTotem() != null) {
+                 trancaExistente.setTotem(trancaAtualizada.getTotem());
+             }
+             if (trancaAtualizada.getBicicleta() != null) {
+                 trancaExistente.setBicicleta(trancaAtualizada.getBicicleta());
+             }
 
-             // 4. Chama o serviço para salvar a entidade *atualizada*
-             Tranca atualizada = trancaService.editarTranca(idTranca, trancaAtual);
+             // 3. Salva a entidade atualizada
+             Tranca atualizada = trancaService.editarTranca(idTranca, trancaExistente);
 
              return ResponseEntity.ok(atualizada);
 
@@ -89,13 +102,9 @@ public class TrancaController {
              if (e.getMessage().contains("não encontrada")) {
                  return erro404(e);
              }
-             // Erros de validação (como modelo em branco) caem aqui
              return erro422(e);
          }
      }
-
-
-
 
     // ---------- remover tranca----------
     @DeleteMapping("/{idTranca}")

@@ -16,7 +16,7 @@ public class Tranca {
 
     private String modelo;
 
-    @Column(name = "ano_de_fabricacao", nullable = false)
+    @Column(name = "ano_de_fabricacao")
     private String anoDeFabricacao;
 
     @Enumerated(EnumType.STRING)
@@ -52,4 +52,10 @@ public class Tranca {
     public void setStatus(StatusTranca status) { this.status = status; }
     public Bicicleta getBicicleta() { return bicicleta; }
     public void setBicicleta(Bicicleta bicicleta) { this.bicicleta = bicicleta; }
+    public Totem getTotem() {
+        return totem;
+    }
+    public void setTotem(Totem totem) {
+        this.totem = totem;
+    }
 }

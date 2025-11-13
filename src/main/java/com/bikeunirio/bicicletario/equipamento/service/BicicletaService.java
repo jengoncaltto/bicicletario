@@ -15,13 +15,14 @@ import java.util.List;
 
 @Service
 public class BicicletaService {
+    private final BicicletaRepository bicicletaRepository;
+    private final EmailService emailService;
 
     @Autowired
-    private BicicletaRepository bicicletaRepository;
-
-    @Autowired
-    private EmailService emailService;
-
+    public BicicletaService(BicicletaRepository bicicletaRepository, EmailService emailService) {
+        this.bicicletaRepository = bicicletaRepository;
+        this.emailService = emailService;
+    }
     /* ---------- UC10: Manter Bicicleta ---------- */
     public List<Bicicleta> listarBicicletas() {
         return bicicletaRepository.findAll();

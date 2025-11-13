@@ -68,7 +68,7 @@ public class TotemController {
     }
 
     @GetMapping("/{idTotem}/bicicletas")
-    public ResponseEntity<Object> ListarBicicletasDeUmTotem(@PathVariable Long idTotem){
+    public ResponseEntity<Object> listarBicicletasDeUmTotem(@PathVariable Long idTotem){
         try{
             List<Bicicleta> bicicletas = totemService.listarBicicletasDeUmTotem(idTotem);
             return ResponseEntity.ok(bicicletas);

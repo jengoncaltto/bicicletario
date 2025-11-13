@@ -145,7 +145,7 @@ class TotemControllerTest {
 
     @Test
     void devePermitirListarBicicletas() {
-        totemController.ListarBicicletasDeUmTotem(1L);
+        totemController.listarBicicletasDeUmTotem(1L);
         assertTrue(true);
     }
 }

@@ -110,7 +110,7 @@ public class BicicletaController {
 
         try {
             String mensagem = bicicletaService.incluirBicicletaNaRede(dto.getIdBicicleta());
-            return ResponseEntity.ok(Map.of("mensagem", mensagem));
+            return ResponseEntity.ok(Map.of(MSG, mensagem));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(422).body(Map.of(
                     "erro", e.getMessage()

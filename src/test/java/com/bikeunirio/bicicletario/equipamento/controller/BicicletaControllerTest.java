@@ -119,6 +119,22 @@ class BicicletaControllerTest {
         assertTrue(corpo.contains("DADOS INVALIDOS"));
         assertTrue(corpo.contains("Número e status não podem ser enviados na criação."));
     }
+    @Test
+    void deveRetornarErro422QuandoServiceLancarExcecaoDuranteCadastro() {
+        Bicicleta bicicleta = new Bicicleta();
+        bicicleta.setMarca("Caloi");
+        bicicleta.setModelo("Elite");
+        // não define número nem status, para não cair no if
+
+        when(service.cadastrarBicicleta(bicicleta))
+                .thenThrow(new IllegalArgumentException("Dados inválidos ao cadastrar."));
+
+        ResponseEntity<Object> resposta = controller.cadastrarBicicleta(bicicleta);
+
+        assertEquals(422, resposta.getStatusCodeValue());
+        assertTrue(resposta.getBody().toString().contains("Dados inválidos ao cadastrar."));
+    }
+
 
     /* ---------- retornarBicicleta ---------- */
 

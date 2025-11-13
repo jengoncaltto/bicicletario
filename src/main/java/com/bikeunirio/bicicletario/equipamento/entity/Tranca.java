@@ -36,11 +36,11 @@ public class Tranca {
     @JoinColumn(name = "bicicleta_id")
     private Bicicleta bicicleta;
 
-    /**
-     * Construtor padrão obrigatório pelo JPA/Hibernate.
-     * Não deve ser removido ou modificado.
-     */
     public Tranca() {
+        /**
+         * Construtor padrão obrigatório pelo JPA/Hibernate.
+         * Não deve ser removido ou modificado.
+         */
     }
 
     // --- Getters e Setters ---

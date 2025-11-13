@@ -13,17 +13,11 @@ import java.util.Map;
 @RequestMapping("/tranca")
 public class TrancaController {
 
-    @Autowired
-    private TrancaService trancaService;
+    private final TrancaService trancaService;
 
-    /**
-     * Construtor padrão.
-     * O Spring irá injetar automaticamente os beans anotados com @Autowired,
-     * portanto este construtor pode permanecer vazio.
-     */
-    public TrancaController() {
+    public TrancaController(TrancaService trancaService) {
+        this.trancaService = trancaService;
     }
-
 
 
     //---------- listar todas trancas ----------

@@ -26,11 +26,12 @@ public class Totem {
     private List<Tranca> trancas;
 
 
-    /**
-     * Construtor padrão obrigatório pelo JPA/Hibernate.
-     * Não deve ser removido ou modificado.
-     */
+
     public Totem() {
+        /**
+         * Construtor padrão obrigatório pelo JPA/Hibernate.
+         * Não deve ser removido ou modificado.
+         */
     }
 
     // --- Getters e Setters ---

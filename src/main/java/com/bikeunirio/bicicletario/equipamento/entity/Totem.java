@@ -25,7 +25,9 @@ public class Totem {
     @OneToMany(mappedBy = "totem", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<Tranca> trancas;
 
-    public Totem() {}
+    public Totem() {
+        this.id = id;
+    }
 
     // --- Getters e Setters ---
     public Long getId() { return id; }
@@ -34,7 +36,6 @@ public class Totem {
     public String getDescricao() { return descricao; }
     public void setDescricao(String descricao) { this.descricao = descricao; }
     public List<Bicicleta> getBicicletas() { return bicicletas; }
-    public void setBicicletas(List<Bicicleta> bicicletas) { this.bicicletas = bicicletas; }
     public List<Tranca> getTrancas() { return trancas; }
     public void setTrancas(List<Tranca> trancas) { this.trancas = trancas; }
 }

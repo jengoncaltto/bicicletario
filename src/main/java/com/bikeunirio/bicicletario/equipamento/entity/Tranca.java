@@ -48,12 +48,8 @@ public class Tranca {
     public void setModelo(String modelo) { this.modelo = modelo; }
     public String getAnoDeFabricacao() { return anoDeFabricacao; }
     public void setAnoDeFabricacao(String anoDeFabricacao) { this.anoDeFabricacao = anoDeFabricacao; }
-    public String getLocalizacao() { return localizacao; }
-    public void setLocalizacao(String localizacao) { this.localizacao = localizacao; }
     public StatusTranca getStatus() { return status; }
     public void setStatus(StatusTranca status) { this.status = status; }
-    public Totem getTotem() { return totem; }
-    public void setTotem(Totem totem) { this.totem = totem; }
     public Bicicleta getBicicleta() { return bicicleta; }
     public void setBicicleta(Bicicleta bicicleta) { this.bicicleta = bicicleta; }
 }

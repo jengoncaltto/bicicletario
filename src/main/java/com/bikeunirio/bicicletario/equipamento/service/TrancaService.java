@@ -82,7 +82,7 @@ public class TrancaService {
         Tranca tranca = trancaRepository.findById(idTranca)
                 .orElseThrow(() -> new IllegalArgumentException(TRANCA_NAO_ENCONTRADO + idTranca));
 
-        if (tranca.getBicicleta().getId() == null) {
+        if (tranca.getBicicleta() == null) {
             throw new IllegalArgumentException("Nenhuma bicicleta está presa nesta tranca.");
         }
 

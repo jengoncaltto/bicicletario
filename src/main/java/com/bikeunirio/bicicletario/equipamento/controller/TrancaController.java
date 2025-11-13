@@ -69,31 +69,34 @@ public class TrancaController {
     }
 
      //---------- editar tranca ----------
-    @PutMapping("/{idTranca}")
-    public ResponseEntity<Object> editarTranca(@PathVariable Long idTranca, @RequestBody Tranca tranca) {
-        try {
 
-            // pega a do banco e compara com os novos dados(a "nova" tranca que foi passada)
-            Tranca atual = trancaService.buscarPorId(idTranca);
+     @PutMapping("/{idTranca}")
+     public ResponseEntity<Object> editarTranca(@PathVariable Long idTranca, @RequestBody Tranca tranca) {
+         try {
 
-            if (tranca.getNumero() != null &&
-                    !tranca.getNumero().equals(atual.getNumero())) {
-                throw new IllegalArgumentException("O número da tranca não pode ser editado.");
-            }
-            if (tranca.getStatus() != null &&
-                    !tranca.getStatus().equals(atual.getStatus())) {
-                throw new IllegalArgumentException("O número da tranca não pode ser editado.");
-            }
+             // pega a do banco e compara com os novos dados(a "nova" tranca que foi passada)
+             Tranca atual = trancaService.buscarPorId(idTranca);
 
-            Tranca atualizada = trancaService.editarTranca(idTranca, tranca);
-            return ResponseEntity.ok(atualizada);
-        } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrada")) {
-                return erro404(e);
-            }
-            return erro422(e);
-        }
-    }
+             if (tranca.getNumero() != null &&
+                     !tranca.getNumero().equals(atual.getNumero())) {
+                 throw new IllegalArgumentException("O número da tranca não pode ser editado.");
+             }
+             if (tranca.getStatus() != null &&
+                     !tranca.getStatus().equals(atual.getStatus())) {
+                 throw new IllegalArgumentException("O número da tranca não pode ser editado.");
+             }
+
+             Tranca atualizada = trancaService.editarTranca(idTranca, tranca);
+             return ResponseEntity.ok(atualizada);
+         } catch (IllegalArgumentException e) {
+             if (e.getMessage().contains("não encontrada")) {
+                 return erro404(e);
+             }
+             return erro422(e);
+         }
+     }
+
+
 
     // ---------- remover tranca----------
     @DeleteMapping("/{idTranca}")

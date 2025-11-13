@@ -146,7 +146,6 @@ class TrancaControllerTest {
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
         verify(trancaService).editarTranca(1L, tranca);
     }
-
     /* ---------- excluirTranca ---------- */
     @Test
     void deveRemoverTrancaComSucesso() {

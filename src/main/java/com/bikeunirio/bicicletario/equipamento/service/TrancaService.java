@@ -12,8 +12,12 @@ import java.util.List;
 public class TrancaService {
     private static final String TRANCA_NAO_ENCONTRADO = "Tranca não encontrada: ";
 
-    @Autowired
-    private TrancaRepository trancaRepository;
+
+    private final TrancaRepository trancaRepository;
+
+    public TrancaService(TrancaRepository trancaRepository) {
+        this.trancaRepository = trancaRepository;
+    }
 
     /* ---------- LISTAR TODAS AS TRANÇAS ---------- */
     public List<Tranca> listarTrancas() {

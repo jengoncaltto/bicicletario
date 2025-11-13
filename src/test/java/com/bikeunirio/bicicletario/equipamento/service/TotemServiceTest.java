@@ -88,11 +88,14 @@ class TotemServiceTest {
     void deveLancarErroAoEditarTotemNaoEncontrado() {
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
+        Totem totem = new Totem(); // criar fora da lambda
+
         assertThrows(IllegalArgumentException.class,
-                () -> service.editarTotem(99L, new Totem()));
+                () -> service.editarTotem(99L, totem));
 
         verify(repository, never()).save(any());
     }
+
 
     /* ---------- excluirTotem ---------- */
     @Test

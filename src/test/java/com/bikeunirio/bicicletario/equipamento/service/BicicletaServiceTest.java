@@ -236,12 +236,15 @@ class BicicletaServiceTest {
     void lancarExcecaoQuandoBicicletaNaoEncontrada() {
         when(repository.findById(99L)).thenReturn(Optional.empty());
 
+        Bicicleta bicicleta = new Bicicleta(); // criar fora do lambda
+
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
-                () -> service.editarBicicleta(99L, new Bicicleta()));
+                () -> service.editarBicicleta(99L, bicicleta));
 
         assertTrue(e.getMessage().contains("não encontrada"));
         verify(repository, never()).save(any());
     }
+
 
     /* removerBicicleta*/
     @Test

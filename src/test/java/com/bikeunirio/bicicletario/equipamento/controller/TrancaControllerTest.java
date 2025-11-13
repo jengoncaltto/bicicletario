@@ -1,6 +1,7 @@
 package com.bikeunirio.bicicletario.equipamento.controller;
 
 import com.bikeunirio.bicicletario.equipamento.dto.TrancaDTO;
+import com.bikeunirio.bicicletario.equipamento.dto.TrancaEditarDTO;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
 import com.bikeunirio.bicicletario.equipamento.service.TrancaService;
@@ -112,40 +113,61 @@ class TrancaControllerTest {
     /* ---------- editarTranca ---------- */
     @Test
     void deveEditarTrancaComSucesso() {
-        Tranca atualizada = new Tranca();
-        atualizada.setModelo("Tranca Atualizada");
-        when(trancaService.editarTranca(1L, atualizada)).thenReturn(atualizada);
+        // Cria a tranca que será retornada pelo serviço
+        Tranca trancaAtualizada = new Tranca();
+        trancaAtualizada.setModelo("Tranca Atualizada");
+        trancaAtualizada.setAnoDeFabricacao("2025");
 
-        ResponseEntity<Object> resposta = trancaController.editarTranca(1L, atualizada);
+        // Mock do serviço: aceitar qualquer Tranca como argumento, mas id igual a 1L
+        when(trancaService.editarTranca(eq(1L), any(Tranca.class))).thenReturn(trancaAtualizada);
 
+        // Chamada do controller com uma nova instância de Tranca simulando os dados de edição
+        TrancaEditarDTO trancaParaEditar = new TrancaEditarDTO();
+        trancaParaEditar.setModelo("Tranca Atualizada");
+        trancaParaEditar.setAnoDeFabricacao("2025");
+
+        ResponseEntity<Object> resposta = trancaController.editarTranca(1L, trancaParaEditar);
+
+        // Verificações
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
-        assertEquals(atualizada, resposta.getBody());
-        verify(trancaService).editarTranca(1L, atualizada);
+        assertEquals(trancaAtualizada, resposta.getBody());
+
+        // Verifica se o serviço foi chamado corretamente
+        verify(trancaService).editarTranca(eq(1L), any(Tranca.class));
     }
+
+
 
     @Test
     void deveRetornarErro404AoEditarTrancaNaoEncontrada() {
-        Tranca tranca = new Tranca();
-        when(trancaService.editarTranca(99L, tranca))
+        TrancaEditarDTO dto = new TrancaEditarDTO();
+        dto.setModelo("Tranca Inexistente");
+        dto.setAnoDeFabricacao("2025");
+
+        when(trancaService.editarTranca(eq(99L), any(Tranca.class)))
                 .thenThrow(new IllegalArgumentException("Tranca não encontrada"));
 
-        ResponseEntity<Object> resposta = trancaController.editarTranca(99L, tranca);
+        ResponseEntity<Object> resposta = trancaController.editarTranca(99L, dto);
 
         assertEquals(HttpStatus.NOT_FOUND, resposta.getStatusCode());
-        verify(trancaService).editarTranca(99L, tranca);
+        verify(trancaService).editarTranca(eq(99L), any(Tranca.class));
     }
 
     @Test
     void deveRetornarErro422AoEditarTrancaInvalida() {
-        Tranca tranca = new Tranca();
-        when(trancaService.editarTranca(1L, tranca))
+        TrancaEditarDTO dto = new TrancaEditarDTO();
+        dto.setModelo(""); // Dado inválido
+        dto.setAnoDeFabricacao("2025");
+
+        when(trancaService.editarTranca(eq(1L), any(Tranca.class)))
                 .thenThrow(new IllegalArgumentException("Dados inválidos."));
 
-        ResponseEntity<Object> resposta = trancaController.editarTranca(1L, tranca);
+        ResponseEntity<Object> resposta = trancaController.editarTranca(1L, dto);
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
-        verify(trancaService).editarTranca(1L, tranca);
+        verify(trancaService).editarTranca(eq(1L), any(Tranca.class));
     }
+
     /* ---------- excluirTranca ---------- */
     @Test
     void deveRemoverTrancaComSucesso() {

@@ -1,6 +1,7 @@
 package com.bikeunirio.bicicletario.equipamento.controller;
 
 import com.bikeunirio.bicicletario.equipamento.dto.TrancaDTO;
+import com.bikeunirio.bicicletario.equipamento.dto.TrancaEditarDTO;
 import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.service.TrancaService;
@@ -70,31 +71,31 @@ public class TrancaController {
 
      //---------- editar tranca ----------
 
-     @PutMapping("/{idTranca}")
-     public ResponseEntity<Object> editarTranca(@PathVariable Long idTranca, @RequestBody Tranca tranca) {
-         try {
+    @PutMapping("/{idTranca}")
+    public ResponseEntity<Object> editarTranca(@PathVariable Long idTranca,
+                                               @RequestBody TrancaEditarDTO trancaDTO) {
+        try {
+            // Busca a tranca existente
+            Tranca atual = trancaService.buscarPorId(idTranca);
 
-             // pega a do banco e compara com os novos dados(a "nova" tranca que foi passada)
-             Tranca atual = trancaService.buscarPorId(idTranca);
+            // Mapeia os dados do DTO para a entidade
+            Tranca novosDados = new Tranca();
+            novosDados.setModelo(trancaDTO.getModelo());
+            novosDados.setAnoDeFabricacao(trancaDTO.getAnoDeFabricacao());
 
-             if (tranca.getNumero() != null &&
-                     !tranca.getNumero().equals(atual.getNumero())) {
-                 throw new IllegalArgumentException("O número da tranca não pode ser editado.");
-             }
-             if (tranca.getStatus() != null &&
-                     !tranca.getStatus().equals(atual.getStatus())) {
-                 throw new IllegalArgumentException("O número da tranca não pode ser editado.");
-             }
+            // Chama o serviço para atualizar
+            Tranca atualizada = trancaService.editarTranca(idTranca, novosDados);
 
-             Tranca atualizada = trancaService.editarTranca(idTranca, tranca);
-             return ResponseEntity.ok(atualizada);
-         } catch (IllegalArgumentException e) {
-             if (e.getMessage().contains("não encontrada")) {
-                 return erro404(e);
-             }
-             return erro422(e);
-         }
-     }
+            return ResponseEntity.ok(atualizada);
+
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrada")) {
+                return erro404(e);
+            }
+            return erro422(e);
+        }
+    }
+
 
 
 

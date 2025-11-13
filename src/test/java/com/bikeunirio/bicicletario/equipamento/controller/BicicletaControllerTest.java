@@ -267,12 +267,17 @@ class BicicletaControllerTest {
         Bicicleta bike = new Bicicleta();
         bike.setStatus(StatusBicicleta.EM_REPARO);
 
+        // O service ainda trabalha com enum
         when(service.alterarStatusBicicleta(1L, StatusBicicleta.EM_REPARO)).thenReturn(bike);
 
-        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, StatusBicicleta.EM_REPARO);
+        // Passando string "EM_REPARO" para o controller
+        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, "EM_REPARO");
 
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals(bike, resposta.getBody());
+
+        // Verifica se o service foi chamado com o enum correto
+        verify(service).alterarStatusBicicleta(1L, StatusBicicleta.EM_REPARO);
     }
 
     @Test
@@ -280,7 +285,8 @@ class BicicletaControllerTest {
         when(service.alterarStatusBicicleta(1L, StatusBicicleta.EM_REPARO))
                 .thenThrow(new IllegalArgumentException("não encontrada"));
 
-        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, StatusBicicleta.EM_REPARO);
+        // Passando string "EM_REPARO" para o controller
+        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, "EM_REPARO");
 
         assertEquals(HttpStatus.NOT_FOUND, resposta.getStatusCode());
         Map<String, Object> body = (Map<String, Object>) resposta.getBody();
@@ -292,18 +298,18 @@ class BicicletaControllerTest {
 
     @Test
     void deveRetornarErro422QuandoStatusForInvalido() {
-        when(service.alterarStatusBicicleta(1L, StatusBicicleta.DISPONIVEL))
-                .thenThrow(new IllegalArgumentException("Status inválido para alteração."));
-
-        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, StatusBicicleta.DISPONIVEL);
+        // Não precisa mockar o service, o controller já lança IllegalArgumentException antes
+        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, "INVALIDO");
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
         Map<String, Object> body = (Map<String, Object>) resposta.getBody();
         assertEquals("DADOS INVALIDOS", body.get("codigo"));
-        assertEquals("Status inválido para alteração.", body.get("mensagem"));
+        assertEquals("Status inválido: INVALIDO", body.get("mensagem"));
 
-        verify(service).alterarStatusBicicleta(1L, StatusBicicleta.DISPONIVEL);
+        // O service não deve ser chamado, porque a string é inválida
+        verify(service, never()).alterarStatusBicicleta(anyLong(), any());
     }
+
 
     /* ----------- incluirBicicletaRedeTotens--------*/
     @Test

@@ -144,10 +144,7 @@ public class BicicletaService {
         Bicicleta atualizada = bicicletaRepository.findById(idBicicleta)
                 .orElseThrow(() -> new IllegalArgumentException("não encontrada: " + idBicicleta));
 
-        // altera o status
         atualizada.setStatus(acao);
-
-        // salva e retorna a bicicleta atualizada
         return bicicletaRepository.save(atualizada);
     }
 

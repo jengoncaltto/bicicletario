@@ -117,11 +117,19 @@ public class BicicletaController {
         }
     }
 
-
     @PostMapping("/{idBicicleta}/status/{acao}")
-    public ResponseEntity<Object> alterarStatusBicicleta(@PathVariable Long idBicicleta, @PathVariable StatusBicicleta acao) {
+    public ResponseEntity<Object> alterarStatusBicicleta(@PathVariable Long idBicicleta,
+                                                         @PathVariable String acao) {
         try {
-            Bicicleta atualizada = bicicletaService.alterarStatusBicicleta(idBicicleta, acao);
+            // Converte a string para enum
+            StatusBicicleta status;
+            try {
+                status = StatusBicicleta.valueOf(acao.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Status inválido: " + acao);
+            }
+
+            Bicicleta atualizada = bicicletaService.alterarStatusBicicleta(idBicicleta, status);
             return ResponseEntity.ok(atualizada);
         } catch (IllegalArgumentException e) {
             if (e.getMessage().contains(MSG_NAO_ENCONTRADA)) {
@@ -130,6 +138,7 @@ public class BicicletaController {
             return erro422(e);
         }
     }
+
 
 
     public static class BicicletaRedeDTO {

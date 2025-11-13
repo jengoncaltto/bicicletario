@@ -1,0 +1,473 @@
+{
+  "info": {
+    "_postman_id": "84883f36-58c7-430c-a63e-6a56e7920194",
+    "name": "Sistema Bicicletário - Equipamento",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseURL",
+      "value": "https://bicicletarioequipamentos.onrender.com",
+      "type": "string"
+    },
+    {
+      "key": "bicicletaId",
+      "value": "1",
+      "type": "string",
+      "description": "ID de uma bicicleta cadastrada para testes."
+    },
+    {
+      "key": "totemId",
+      "value": "1",
+      "type": "string",
+      "description": "ID de um totem cadastrado para testes."
+    },
+    {
+      "key": "trancaId",
+      "value": "1",
+      "type": "string",
+      "description": "ID de uma tranca cadastrada para testes."
+    }
+  ],
+  "item": [
+    {
+      "name": "Bicicleta Controller (/bicicleta)",
+      "item": [
+        {
+          "name": "1. POST /bicicleta - Cadastrar Bicicleta",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Caloi\",\n  \"modelo\": \"Explorer\",\n  \"ano\": \"2023\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/bicicleta",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "bicicleta"
+              ]
+            },
+            "description": "Cadastra uma nova bicicleta. Não é permitido enviar 'numero' ou 'status' no corpo da requisição."
+          }
+        },
+        {
+          "name": "2. GET /bicicleta - Listar Bicicletas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/bicicleta",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "bicicleta"
+              ]
+            },
+            "description": "Lista todas as bicicletas cadastradas."
+          }
+        },
+        {
+          "name": "3. GET /bicicleta/{{bicicletaId}} - Retornar Bicicleta por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/bicicleta/{{bicicletaId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "bicicleta",
+                "{{bicicletaId}}"
+              ]
+            },
+            "description": "Retorna os dados de uma bicicleta específica."
+          }
+        },
+        {
+          "name": "4. PUT /bicicleta/{{bicicletaId}} - Editar Dados Bicicleta",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"marca\": \"Caloi\",\n  \"modelo\": \"Explorer Sport\",\n  \"ano\": \"2024\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/bicicleta/{{bicicletaId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "bicicleta",
+                "{{bicicletaId}}"
+              ]
+            },
+            "description": "Edita os dados de uma bicicleta. Não é permitido alterar 'numero' ou 'status'."
+          }
+        },
+        {
+          "name": "5. POST /bicicleta/integrarNaRede - Incluir Bicicleta na Rede",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"idBicicleta\": {{bicicletaId}}\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/bicicleta/integrarNaRede",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "bicicleta",
+                "integrarNaRede"
+              ]
+            },
+            "description": "Inclui uma bicicleta recém-cadastrada na rede."
+          }
+        },
+        {
+          "name": "6. POST /bicicleta/{{bicicletaId}}/status/{acao} - Alterar Status Bicicleta",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/bicicleta/{{bicicletaId}}/status/EM_REPARO",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "bicicleta",
+                "{{bicicletaId}}",
+                "status",
+                "EM_REPARO"
+              ]
+            },
+            "description": "Altera o status da bicicleta. Exemplo de status: DISPONIVEL, EM_USO, EM_REPARO, APOSENTADA."
+          }
+        },
+        {
+          "name": "7. DELETE /bicicleta/{{bicicletaId}} - Remover Bicicleta",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/bicicleta/{{bicicletaId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "bicicleta",
+                "{{bicicletaId}}"
+              ]
+            },
+            "description": "Remove uma bicicleta da rede."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Totem Controller (/totem)",
+      "item": [
+        {
+          "name": "1. POST /totem - Cadastrar Totem",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"localizacao\": \"Praça XV - Centro\",\n  \"descricao\": \"Totem principal da região central\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/totem",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "totem"
+              ]
+            },
+            "description": "Cadastra um novo totem."
+          }
+        },
+        {
+          "name": "2. GET /totem - Listar Totens Cadastrados",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/totem",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "totem"
+              ]
+            },
+            "description": "Lista todos os totens cadastrados."
+          }
+        },
+        {
+          "name": "3. PUT /totem/{{totemId}} - Editar Totem",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"localizacao\": \"Praça XV - Modificado\",\n  \"descricao\": \"Totem principal da região central\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/totem/{{totemId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "totem",
+                "{{totemId}}"
+              ]
+            },
+            "description": "Edita os dados de um totem específico."
+          }
+        },
+        {
+          "name": "4. GET /totem/{{totemId}}/trancas - Listar Trancas de um Totem",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/totem/{{totemId}}/trancas",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "totem",
+                "{{totemId}}",
+                "trancas"
+              ]
+            },
+            "description": "Lista as trancas associadas a um totem específico."
+          }
+        },
+        {
+          "name": "5. GET /totem/{{totemId}}/bicicletas - Listar Bicicletas de um Totem",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/totem/{{totemId}}/bicicletas",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "totem",
+                "{{totemId}}",
+                "bicicletas"
+              ]
+            },
+            "description": "Lista as bicicletas associadas a um totem específico."
+          }
+        },
+        {
+          "name": "6. DELETE /totem/{{totemId}} - Excluir Totem",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/totem/{{totemId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "totem",
+                "{{totemId}}"
+              ]
+            },
+            "description": "Exclui um totem cadastrado."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tranca Controller (/tranca)",
+      "item": [
+        {
+          "name": "1. POST /tranca - Cadastrar Tranca",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"localizacao\": \"Copacabana - Posto 6\",\n  \"modelo\": \"Modelo-T3\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/tranca",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "tranca"
+              ]
+            },
+            "description": "Cadastra uma nova tranca. Não é permitido enviar 'numero' ou 'status' no corpo da requisição."
+          }
+        },
+        {
+          "name": "2. GET /tranca - Listar Trancas Cadastradas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/tranca",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "tranca"
+              ]
+            },
+            "description": "Lista todas as trancas cadastradas."
+          }
+        },
+        {
+          "name": "3. GET /tranca/{{trancaId}} - Buscar Tranca por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/tranca/{{trancaId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "tranca",
+                "{{trancaId}}"
+              ]
+            },
+            "description": "Busca uma tranca específica por ID."
+          }
+        },
+        {
+          "name": "4. PUT /tranca/{{trancaId}} - Editar Tranca",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"localizacao\": \"Copacabana - Posto 6 (Editado)\",\n  \"modelo\": \"Modelo-T3\"\n}"
+            },
+            "url": {
+              "raw": "{{baseURL}}/tranca/{{trancaId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "tranca",
+                "{{trancaId}}"
+              ]
+            },
+            "description": "Edita os dados de uma tranca. Não é permitido alterar 'numero' ou 'status'."
+          }
+        },
+        {
+          "name": "5. GET /tranca/{{trancaId}}/bicicleta - Retornar Bicicleta Associada",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/tranca/{{trancaId}}/bicicleta",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "tranca",
+                "{{trancaId}}",
+                "bicicleta"
+              ]
+            },
+            "description": "Retorna a bicicleta que está associada a esta tranca."
+          }
+        },
+        {
+          "name": "6. POST /tranca/{{trancaId}}/status/{acao} - Alterar Status da Tranca",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/tranca/{{trancaId}}/status/EM_REPARO",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "tranca",
+                "{{trancaId}}",
+                "status",
+                "EM_REPARO"
+              ]
+            },
+            "description": "Altera o status da tranca. Exemplo de status (ação): NOVA, REPARO, APOSENTADA."
+          }
+        },
+        {
+          "name": "7. DELETE /tranca/{{trancaId}} - Remover Tranca",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseURL}}/tranca/{{trancaId}}",
+              "host": [
+                "{{baseURL}}"
+              ],
+              "path": [
+                "tranca",
+                "{{trancaId}}"
+              ]
+            },
+            "description": "Remove uma tranca cadastrada."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -26,6 +26,13 @@ public class Totem {
     private List<Tranca> trancas;
 
 
+    /**
+     * Construtor padrão obrigatório pelo JPA/Hibernate.
+     * Não deve ser removido ou modificado.
+     */
+    public Totem() {
+    }
+
     // --- Getters e Setters ---
     public Long getId() { return id; }
     public String getLocalizacao() { return localizacao; }

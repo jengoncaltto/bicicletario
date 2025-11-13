@@ -19,6 +19,14 @@ public class TotemController {
     @Autowired
     private TotemService totemService;
 
+
+    /**
+     * Construtor padrão obrigatório pelo JPA/Hibernate.
+     * Não deve ser removido ou modificado.
+     */
+    public TotemController() {
+    }
+
     @GetMapping
     public ResponseEntity<List<Totem>> listarTotensCadastrados(){
         List<Totem> totens = totemService.listarTotens();

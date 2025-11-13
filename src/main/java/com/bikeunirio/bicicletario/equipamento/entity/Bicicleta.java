@@ -41,6 +41,11 @@ public class Bicicleta {
     @ManyToOne
     @JoinColumn(name = "totem_id")
     private Totem totem;
+
+    /**
+     * Construtor padrão obrigatório pelo JPA/Hibernate.
+     * Não deve ser removido ou modificado.
+     */
     public Bicicleta() {}
 
     public Long getId() { return id; }

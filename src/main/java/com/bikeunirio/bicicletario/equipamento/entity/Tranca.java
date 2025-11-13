@@ -36,7 +36,9 @@ public class Tranca {
     @JoinColumn(name = "bicicleta_id")
     private Bicicleta bicicleta;
 
-    public Tranca() {}
+    public Tranca(Long id) {
+        this.id = id;
+    }
 
     // --- Getters e Setters ---
     public Long getId() { return id; }

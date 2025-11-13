@@ -51,12 +51,9 @@ public class TrancaController {
         try {
             // RN: Verificar se o ID da bicicleta é válido e se a bicicleta existe
             Bicicleta bicicleta = null;
-            if (trancaDTO.getBicicletaId() != null) {
-
-                // 1. Validação básica (ID deve ser positivo)
-                if (trancaDTO.getBicicletaId() <= 0) {
-                    throw new IllegalArgumentException("ID da bicicleta deve ser um valor positivo.");
-                }
+            // Verifica se o ID da bicicleta foi enviado e é válido
+            if (trancaDTO.getBicicletaId() != null && trancaDTO.getBicicletaId() <= 0) {
+                throw new IllegalArgumentException("ID da bicicleta deve ser um valor positivo.");
             }
 
             // Mapeamento e criação da Tranca

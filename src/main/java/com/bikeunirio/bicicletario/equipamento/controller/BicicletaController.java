@@ -3,7 +3,6 @@ package com.bikeunirio.bicicletario.equipamento.controller;
 import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusBicicleta;
 import com.bikeunirio.bicicletario.equipamento.service.BicicletaService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +16,9 @@ public class BicicletaController {
     private static final String MSG_NAO_ENCONTRADA = "não encontrada";
     private static final String CODIGO_NAO_ENCONTRADO = "NAO ENCONTRADO";
     private static final String CODIGO_DADOS_INVALIDOS = "DADOS INVALIDOS";
-    private static final String MSG = "codigo";
-    private static final String COD = "mensagem";
+    private static final String COD = "codigo";
+    private static final String MSG = "mensagem";
+
 
     private final BicicletaService bicicletaService;
 
@@ -97,16 +97,16 @@ public class BicicletaController {
 
     @DeleteMapping("/{idBicicleta}")
     public ResponseEntity<Object> removerBicicleta(@PathVariable Long idBicicleta) {
-        try{
+        try {
             Bicicleta excluida = bicicletaService.removerBicicleta(idBicicleta);
             return ResponseEntity.ok(excluida);
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             return erro404(e);
         }
     }
 
     @PostMapping("/integrarNaRede")
-    public ResponseEntity<Object> incluirBicicletaNaRede(@RequestBody BicicletaRedeDTO dto ) {
+    public ResponseEntity<Object> incluirBicicletaNaRede(@RequestBody BicicletaRedeDTO dto) {
 
         try {
             String mensagem = bicicletaService.incluirBicicletaNaRede(dto.getIdBicicleta());
@@ -135,18 +135,25 @@ public class BicicletaController {
 
     public static class BicicletaRedeDTO {
         private Long idBicicleta;
-        public Long getIdBicicleta() { return idBicicleta; }
-        public void setIdBicicleta(Long idBicicleta) { this.idBicicleta = idBicicleta; }
+
+        public Long getIdBicicleta() {
+            return idBicicleta;
+        }
+
+        public void setIdBicicleta(Long idBicicleta) {
+            this.idBicicleta = idBicicleta;
+        }
     }
-    private ResponseEntity<Object> erro404(IllegalArgumentException e){
+
+    private ResponseEntity<Object> erro404(IllegalArgumentException e) {
         return ResponseEntity.status(404).body(
                 Map.of(COD, CODIGO_NAO_ENCONTRADO, MSG, e.getMessage())
         );
     }
-    private ResponseEntity<Object> erro422(IllegalArgumentException e){
+
+    private ResponseEntity<Object> erro422(IllegalArgumentException e) {
         return ResponseEntity.status(422).body(
                 Map.of(COD, CODIGO_DADOS_INVALIDOS, MSG, e.getMessage())
         );
-
     }
 }

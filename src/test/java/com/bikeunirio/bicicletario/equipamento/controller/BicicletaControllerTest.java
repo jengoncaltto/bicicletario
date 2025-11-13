@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -88,7 +89,6 @@ class BicicletaControllerTest {
         assertEquals(bicicleta, resposta.getBody());
         verify(service, times(1)).cadastrarBicicleta(bicicleta);
     }
-
     @Test
     void deveRetornarErro422QuandoDadosInvalidos() {
         // Arrange – simula exceção lançada pelo service
@@ -102,6 +102,22 @@ class BicicletaControllerTest {
         // Assert
         assertEquals(422, resposta.getStatusCodeValue());
         verify(service, times(1)).cadastrarBicicleta(bicicleta);
+    }
+    @Test
+    void deveRetornarErro422QuandoNumeroOuStatusForEnviadoNaCriacao() {
+        // Arrange
+        Bicicleta bicicleta = new Bicicleta();
+        bicicleta.setNumero(100); // número não deve ser enviado
+        bicicleta.setStatus(StatusBicicleta.NOVA); // status também não deve ser enviado
+
+        // Act
+        ResponseEntity<Object> resposta = controller.cadastrarBicicleta(bicicleta);
+
+        // Assert
+        assertEquals(422, resposta.getStatusCodeValue());
+        String corpo = resposta.getBody().toString();
+        assertTrue(corpo.contains("DADOS INVALIDOS"));
+        assertTrue(corpo.contains("Número e status não podem ser enviados na criação."));
     }
 
     /* ---------- retornarBicicleta ---------- */
@@ -131,6 +147,22 @@ class BicicletaControllerTest {
         assertEquals(404, resposta.getStatusCodeValue());
         verify(service).retornarBicicleta(99L);
     }
+    @Test
+    void deveRetornarErro422QuandoDadosForemInvalidos() {
+        // Arrange
+        Long idInvalido = -1L;
+        when(service.retornarBicicleta(idInvalido))
+                .thenThrow(new IllegalArgumentException("Número negativo não é aceito."));
+
+        // Act
+        ResponseEntity<Object> resposta = controller.retornarBicicleta(idInvalido);
+
+        // Assert
+        assertEquals(422, resposta.getStatusCodeValue());
+        assertTrue(resposta.getBody().toString().contains("DADOS INVALIDOS"));
+        assertTrue(resposta.getBody().toString().contains("Número negativo não é aceito"));
+    }
+
 
     /* ---------- editarBicicleta ---------- */
 
@@ -176,6 +208,62 @@ class BicicletaControllerTest {
         verify(service).retornarBicicleta(1L);
         verify(service).editarBicicleta(1L, novosDados);
     }
+    @Test
+    void deveRetornarErro422QuandoTentarEditarNumeroDaBicicleta() {
+        // Arrange
+        Bicicleta atual = new Bicicleta();
+        atual.setNumero(10);
+        atual.setStatus(com.bikeunirio.bicicletario.equipamento.enums.StatusBicicleta.DISPONIVEL);
+
+        when(service.retornarBicicleta(1L)).thenReturn(atual);
+
+        // bicicleta enviada com número diferente
+        Bicicleta nova = new Bicicleta();
+        nova.setNumero(99);
+
+        // Act
+        ResponseEntity<Object> resposta = controller.editarDadosBicicleta(1L, nova);
+
+        // Assert
+        assertEquals(422, resposta.getStatusCodeValue());
+        String body = resposta.getBody().toString();
+        assertTrue(body.contains("O número da bicicleta não pode ser editado."));
+    }
+    @Test
+    void deveRetornarErro422QuandoServiceLancarIllegalArgumentExceptionGenerica() {
+        // Arrange
+        Bicicleta nova = new Bicicleta();
+        when(service.retornarBicicleta(1L)).thenThrow(new IllegalArgumentException("Dados inválidos."));
+
+        // Act
+        ResponseEntity<Object> resposta = controller.editarDadosBicicleta(1L, nova);
+
+        // Assert
+        assertEquals(422, resposta.getStatusCodeValue());
+        assertTrue(resposta.getBody().toString().contains("Dados inválidos."));
+    }
+    @Test
+    void deveRetornarErro422QuandoTentarEditarStatusDaBicicleta() {
+        // Arrange
+        Bicicleta atual = new Bicicleta();
+        atual.setNumero(10);
+        atual.setStatus(com.bikeunirio.bicicletario.equipamento.enums.StatusBicicleta.DISPONIVEL);
+
+        when(service.retornarBicicleta(1L)).thenReturn(atual);
+
+        // bicicleta enviada com status diferente
+        Bicicleta nova = new Bicicleta();
+        nova.setStatus(com.bikeunirio.bicicletario.equipamento.enums.StatusBicicleta.EM_REPARO);
+
+        // Act
+        ResponseEntity<Object> resposta = controller.editarDadosBicicleta(1L, nova);
+
+        // Assert
+        assertEquals(422, resposta.getStatusCodeValue());
+        String body = resposta.getBody().toString();
+        assertTrue(body.contains("O status da bicicleta não pode ser editado pelo UC10."));
+    }
+
 
     /* ---------- removerBicicleta ---------- */
     @Test
@@ -196,12 +284,11 @@ class BicicletaControllerTest {
         assertEquals(bike, resposta.getBody());
         verify(service, times(1)).removerBicicleta(1L);
     }
-
     @Test
     void deveRetornarStatus404QuandoBicicletaNaoForEncontrada() {
         // Arrange
         when(service.removerBicicleta(99L))
-                .thenThrow(new IllegalArgumentException("Bicicleta não encontrada"));
+                .thenThrow(new IllegalArgumentException("NAO ENCONTRADO"));
 
         // Act
         ResponseEntity<Object> resposta = controller.removerBicicleta(99L);
@@ -228,18 +315,84 @@ class BicicletaControllerTest {
         assertEquals(200, resposta.getStatusCodeValue());
         assertEquals(bike, resposta.getBody());
     }
+    @Test
+    void deveRetornarErro404QuandoBicicletaNaoForEncontrada() {
+        // Arrange
+        when(service.alterarStatusBicicleta(1L, StatusBicicleta.EM_REPARO))
+                .thenThrow(new IllegalArgumentException("não encontrada"));
+
+        // Act
+        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, StatusBicicleta.EM_REPARO);
+
+        // Assert
+        assertEquals(404, resposta.getStatusCodeValue());
+        Map<String, Object> body = (Map<String, Object>) resposta.getBody();
+        assertEquals("NAO ENCONTRADO", body.get("codigo"));
+        assertTrue(((String) body.get("mensagem")).contains("não encontrada"));
+
+        verify(service).alterarStatusBicicleta(1L, StatusBicicleta.EM_REPARO);
+    }
+
+    /* ---------- Teste 422 ---------- */
+    @Test
+    void deveRetornarErro422QuandoStatusForInvalido() {
+        // Arrange
+        when(service.alterarStatusBicicleta(1L, StatusBicicleta.DISPONIVEL))
+                .thenThrow(new IllegalArgumentException("Status inválido para alteração."));
+
+        // Act
+        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, StatusBicicleta.DISPONIVEL);
+
+        // Assert
+        assertEquals(422, resposta.getStatusCodeValue());
+        Map<String, Object> body = (Map<String, Object>) resposta.getBody();
+        assertEquals("DADOS INVALIDOS", body.get("codigo"));
+        assertEquals("Status inválido para alteração.", body.get("mensagem"));
+
+        verify(service).alterarStatusBicicleta(1L, StatusBicicleta.DISPONIVEL);
+    }
+
+    /* -----------incluirBicicletaRedeTotens--------*/
 
     @Test
-    void deveRetornar404QuandoBicicletaNaoForEncontrada() {
-        // Quando o service lançar erro de "não encontrada"
-        when(service.alterarStatusBicicleta(99L, StatusBicicleta.DISPONIVEL))
-                .thenThrow(new IllegalArgumentException("Bicicleta não encontrada"));
+    void deveIncluirBicicletaNaRedeComSucesso() {
+        // Arrange
+        BicicletaController.BicicletaRedeDTO dto = new BicicletaController.BicicletaRedeDTO();
+        dto.setIdBicicleta(1L);
 
-        // Chama o método do controller
-        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(99L, StatusBicicleta.DISPONIVEL);
+        when(service.incluirBicicletaNaRede(1L))
+                .thenReturn("Bicicleta incluída com sucesso na rede de totens.");
 
-        // Verifica se retornou o status 404
-        assertEquals(404, resposta.getStatusCodeValue());
+        // Act
+        ResponseEntity<Object> resposta = controller.incluirBicicletaNaRede(dto);
+
+        // Assert
+        assertEquals(200, resposta.getStatusCodeValue());
+        Map<String, Object> body = (Map<String, Object>) resposta.getBody();
+        assertEquals("Bicicleta incluída com sucesso na rede de totens.", body.get("mensagem"));
+
+        verify(service).incluirBicicletaNaRede(1L);
     }
+
+    @Test
+    void deveRetornarErro422QuandoFalharAoIncluirBicicletaNaRede() {
+        // Arrange
+        BicicletaController.BicicletaRedeDTO dto = new BicicletaController.BicicletaRedeDTO();
+        dto.setIdBicicleta(2L);
+
+        when(service.incluirBicicletaNaRede(2L))
+                .thenThrow(new IllegalArgumentException("Falha ao incluir bicicleta."));
+
+        // Act
+        ResponseEntity<Object> resposta = controller.incluirBicicletaNaRede(dto);
+
+        // Assert
+        assertEquals(422, resposta.getStatusCodeValue());
+        Map<String, Object> body = (Map<String, Object>) resposta.getBody();
+        assertEquals("Falha ao incluir bicicleta.", body.get("erro"));
+
+        verify(service).incluirBicicletaNaRede(2L);
+    }
+
 
 }

@@ -20,7 +20,7 @@ public class Tranca {
     @Column(name = "ano_de_fabricacao", nullable = false)
     private String anoDeFabricacao;
 
-    private String localizacao;
+    //private String localizacao;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -36,9 +36,6 @@ public class Tranca {
     @JoinColumn(name = "bicicleta_id")
     private Bicicleta bicicleta;
 
-    public Tranca() {
-        this.id = id;
-    }
 
     // --- Getters e Setters ---
     public Long getId() { return id; }

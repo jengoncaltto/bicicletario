@@ -26,8 +26,6 @@ public class Tranca {
     @Column(nullable = false)
     private StatusTranca status;
 
-    private Long idReparadorResponsavel;
-
     // Uma tranca pertence a um totem
     @ManyToOne
     @JoinColumn(name = "totem_id")

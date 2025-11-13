@@ -16,16 +16,11 @@ import java.util.Map;
 public class TotemController {
     private static final String NAO_ENCONTRADO = "não encontrado";
 
-    @Autowired
-    private TotemService totemService;
+    private final TotemService totemService;
 
 
-    /**
-     * Construtor padrão.
-     * O Spring irá injetar automaticamente os beans anotados com @Autowired,
-     * portanto este construtor pode permanecer vazio.
-     */
-    public TotemController() {
+    public TotemController(TotemService totemService) {
+        this.totemService = totemService;
     }
 
     @GetMapping

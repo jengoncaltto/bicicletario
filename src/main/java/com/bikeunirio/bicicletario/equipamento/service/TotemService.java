@@ -14,8 +14,12 @@ import java.util.List;
 @Service
 public class TotemService {
 
-    @Autowired
-    private TotemRepository repository;
+
+    private final TotemRepository repository;
+
+    public TotemService(TotemRepository repository) {
+        this.repository = repository;
+    }
 
     public Totem cadastrarTotem(Totem totem) {
         if (totem.getLocalizacao() == null || totem.getDescricao() == null) {

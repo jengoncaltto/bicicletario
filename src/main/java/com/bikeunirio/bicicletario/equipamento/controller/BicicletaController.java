@@ -20,15 +20,10 @@ public class BicicletaController {
     private static final String COD = "codigo";
     private static final String MSG = "mensagem";
 
-    @Autowired
-    private BicicletaService bicicletaService;
+    private final BicicletaService bicicletaService;
 
-    /**
-     * Construtor padrão.
-     * O Spring irá injetar automaticamente os beans anotados com @Autowired,
-     * portanto este construtor pode permanecer vazio.
-     */
-    public BicicletaController() {
+    public BicicletaController(BicicletaService bicicletaService) {
+        this.bicicletaService = bicicletaService;
     }
 
     @GetMapping

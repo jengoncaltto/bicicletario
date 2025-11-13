@@ -3,7 +3,6 @@ package com.bikeunirio.bicicletario.equipamento.controller;
 import com.bikeunirio.bicicletario.equipamento.dto.TrancaDTO;
 
 import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
-import com.bikeunirio.bicicletario.equipamento.entity.Totem;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.service.TrancaService;
 import org.springframework.http.ResponseEntity;

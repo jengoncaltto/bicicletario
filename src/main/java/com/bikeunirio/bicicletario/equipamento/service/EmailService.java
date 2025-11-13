@@ -9,7 +9,7 @@ public class EmailService {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
 
-    private EmailService() {
+    EmailService() {
         // impede instância fora do Spring
     }
 

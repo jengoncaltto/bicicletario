@@ -132,7 +132,7 @@ public class BicicletaController {
         }
     }
 
-    /* ---------- MÉTODO AUXILIAR ---------- */
+    /* ---------- auxiliares ---------- */
     private StatusBicicleta converterParaStatusBicicleta(String acao) {
         try {
             return StatusBicicleta.valueOf(acao.toUpperCase());

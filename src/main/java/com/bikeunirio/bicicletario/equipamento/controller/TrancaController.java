@@ -1,5 +1,7 @@
 package com.bikeunirio.bicicletario.equipamento.controller;
 
+import com.bikeunirio.bicicletario.equipamento.dto.TrancaDTO;
+import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.service.TrancaService;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +41,37 @@ public class TrancaController {
             return ResponseEntity.ok(novaTranca);
         } catch (IllegalArgumentException e) {
             // Caso os dados sejam inválidos
+            return erro422(e);
+        }
+    }
+    // Controller: TrancaController
+
+    @PostMapping
+    public ResponseEntity<Object> cadastrarTranca(@RequestBody TrancaDTO trancaDTO) {
+        try {
+            // RN: Verificar se o ID da bicicleta é válido e se a bicicleta existe
+            Bicicleta bicicleta = null;
+            if (trancaDTO.getBicicletaId() != null) {
+
+                // 1. Validação básica (ID deve ser positivo)
+                if (trancaDTO.getBicicletaId() <= 0) {
+                    throw new IllegalArgumentException("ID da bicicleta deve ser um valor positivo.");
+                }
+            }
+
+            // Mapeamento e criação da Tranca
+            Tranca tranca = new Tranca();
+            tranca.setModelo(trancaDTO.getModelo());
+            tranca.setAnoDeFabricacao(trancaDTO.getAnoDeFabricacao());
+            tranca.setBicicleta(bicicleta);
+
+            // Se a entidade Tranca tem número e status, eles devem ser inicializados
+            // ou definidos no serviço/entidade. Não podem ser passados pelo DTO.
+
+            Tranca novaTranca = trancaService.cadastrarTranca(tranca);
+            return ResponseEntity.ok(novaTranca);
+        } catch (IllegalArgumentException e) {
+            // Se a bicicleta não for encontrada ou dados inválidos
             return erro422(e);
         }
     }
@@ -91,6 +124,7 @@ public class TrancaController {
             return erro404(e);
         }
     }
+
 
 
 

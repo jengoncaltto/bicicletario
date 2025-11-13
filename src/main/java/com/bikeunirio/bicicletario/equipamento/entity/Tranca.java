@@ -36,7 +36,7 @@ public class Tranca {
     @JoinColumn(name = "bicicleta_id")
     private Bicicleta bicicleta;
 
-    public Tranca(Long id) {
+    public Tranca() {
         this.id = id;
     }
 

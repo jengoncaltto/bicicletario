@@ -14,6 +14,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/totem")
 public class TotemController {
+    private static final String NAO_ENCONTRADO = "não encontrado";
 
     @Autowired
     private TotemService totemService;
@@ -50,7 +51,7 @@ public class TotemController {
             List<Tranca> trancas = totemService.listarTrancasDeUmTotem(idTotem);
             return ResponseEntity.ok(trancas);
         } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrado")) {
+            if (e.getMessage().contains(NAO_ENCONTRADO)) {
                 return erro404(e);
             }
             return erro422(e);
@@ -63,7 +64,7 @@ public class TotemController {
             List<Bicicleta> bicicletas = totemService.listarBicicletasDeUmTotem(idTotem);
             return ResponseEntity.ok(bicicletas);
         } catch (IllegalArgumentException e) {
-            if(e.getMessage().contains("não encontrado")){
+            if(e.getMessage().contains(NAO_ENCONTRADO)){
                 return erro404(e);
             }
             return erro422(e);
@@ -78,7 +79,7 @@ public class TotemController {
             Totem atualizado = totemService.editarTotem(idTotem, totem);
             return ResponseEntity.ok(atualizado);
         } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrado")) {
+            if (e.getMessage().contains(NAO_ENCONTRADO)) {
                 return erro404(e);
             }
             return erro422(e);

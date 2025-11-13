@@ -76,14 +76,6 @@ public class TrancaController {
              // 1. Busca a tranca existente
              Tranca trancaAtual = trancaService.buscarPorId(idTranca);
 
-             // 2. Valida os dados do DTO (Regra R2 - Dados obrigatórios)
-             if (trancaDTO.getModelo() == null || trancaDTO.getModelo().isBlank()) {
-                 throw new IllegalArgumentException("Modelo é obrigatório.");
-             }
-             if (trancaDTO.getAnoDeFabricacao() == null) {
-                 throw new IllegalArgumentException("Ano de Fabricação é obrigatório.");
-             }
-
              // 3. Mapeia os dados do DTO para a entidade *EXISTENTE*
              trancaAtual.setModelo(trancaDTO.getModelo());
              trancaAtual.setAnoDeFabricacao(trancaDTO.getAnoDeFabricacao());

@@ -25,9 +25,6 @@ public class Totem {
     @OneToMany(mappedBy = "totem", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<Tranca> trancas;
 
-    public Totem() {
-        this.id = id;
-    }
 
     // --- Getters e Setters ---
     public Long getId() { return id; }

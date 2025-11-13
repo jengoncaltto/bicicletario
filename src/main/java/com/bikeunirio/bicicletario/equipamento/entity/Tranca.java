@@ -14,7 +14,6 @@ public class Tranca {
     @Column(unique = true, nullable = false)
     private Integer numero;
 
-    @Column(nullable = false)
     private String modelo;
 
     @Column(name = "ano_de_fabricacao", nullable = false)

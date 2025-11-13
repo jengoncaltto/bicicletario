@@ -1,5 +1,6 @@
 package com.bikeunirio.bicicletario.equipamento.controller;
 
+import com.bikeunirio.bicicletario.equipamento.dto.TrancaDTO;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
 import com.bikeunirio.bicicletario.equipamento.service.TrancaService;
@@ -55,29 +56,33 @@ class TrancaControllerTest {
     /* ---------- cadastrarTranca ---------- */
     @Test
     void deveCadastrarTrancaComSucesso() {
+        TrancaDTO dto = new TrancaDTO("Nova Tranca", "2023", null);
         Tranca nova = new Tranca();
-        nova.setModelo("Nova Tranca");
-        nova.setAnoDeFabricacao("2023");
-        when(trancaService.cadastrarTranca(nova)).thenReturn(nova);
+        nova.setModelo(dto.getModelo());
+        nova.setAnoDeFabricacao(dto.getAnoDeFabricacao());
 
-        ResponseEntity<Object> resposta = trancaController.cadastrarTranca(nova);
+        when(trancaService.cadastrarTranca(any(Tranca.class))).thenReturn(nova);
+
+        ResponseEntity<Object> resposta = trancaController.cadastrarTranca(dto);
 
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals(nova, resposta.getBody());
-        verify(trancaService).cadastrarTranca(nova);
+        verify(trancaService).cadastrarTranca(any(Tranca.class));
     }
 
     @Test
     void deveRetornarErro422AoCadastrarTrancaInvalida() {
-        Tranca invalida = new Tranca();
-        when(trancaService.cadastrarTranca(invalida))
+        TrancaDTO dto = new TrancaDTO("", "", null);
+
+        when(trancaService.cadastrarTranca(any(Tranca.class)))
                 .thenThrow(new IllegalArgumentException("Dados inválidos."));
 
-        ResponseEntity<Object> resposta = trancaController.cadastrarTranca(invalida);
+        ResponseEntity<Object> resposta = trancaController.cadastrarTranca(dto);
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
-        verify(trancaService).cadastrarTranca(invalida);
+        verify(trancaService).cadastrarTranca(any(Tranca.class));
     }
+
 
     /* ---------- buscarTrancaPorId ---------- */
     @Test

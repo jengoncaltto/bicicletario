@@ -121,14 +121,7 @@ public class BicicletaController {
     public ResponseEntity<Object> alterarStatusBicicleta(@PathVariable Long idBicicleta,
                                                          @PathVariable String acao) {
         try {
-            // Converte a string para enum
-            StatusBicicleta status;
-            try {
-                status = StatusBicicleta.valueOf(acao.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Status inválido: " + acao);
-            }
-
+            StatusBicicleta status = converterParaStatusBicicleta(acao); // método separado
             Bicicleta atualizada = bicicletaService.alterarStatusBicicleta(idBicicleta, status);
             return ResponseEntity.ok(atualizada);
         } catch (IllegalArgumentException e) {
@@ -139,7 +132,14 @@ public class BicicletaController {
         }
     }
 
-
+    /* ---------- MÉTODO AUXILIAR ---------- */
+    private StatusBicicleta converterParaStatusBicicleta(String acao) {
+        try {
+            return StatusBicicleta.valueOf(acao.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Status inválido: " + acao);
+        }
+    }
 
     public static class BicicletaRedeDTO {
         private Long idBicicleta;

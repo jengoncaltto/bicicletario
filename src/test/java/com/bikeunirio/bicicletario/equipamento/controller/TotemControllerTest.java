@@ -7,6 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -33,7 +34,7 @@ class TotemControllerTest {
 
         ResponseEntity<List<Totem>> resposta = totemController.listarTotensCadastrados();
 
-        assertEquals(200, resposta.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals(1, resposta.getBody().size());
         assertEquals("Totem Central", resposta.getBody().get(0).getDescricao());
         verify(totemService).listarTotens();
@@ -45,7 +46,7 @@ class TotemControllerTest {
 
         ResponseEntity<List<Totem>> resposta = totemController.listarTotensCadastrados();
 
-        assertEquals(200, resposta.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertTrue(resposta.getBody().isEmpty());
         verify(totemService).listarTotens();
     }
@@ -58,7 +59,7 @@ class TotemControllerTest {
 
         ResponseEntity<Object> resposta = totemController.cadastrarTotem(totem);
 
-        assertEquals(200, resposta.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals(totem, resposta.getBody());
         verify(totemService).cadastrarTotem(totem);
     }
@@ -71,7 +72,7 @@ class TotemControllerTest {
 
         ResponseEntity<Object> resposta = totemController.cadastrarTotem(totem);
 
-        assertEquals(422, resposta.getStatusCodeValue());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
         verify(totemService).cadastrarTotem(totem);
     }
 
@@ -83,7 +84,7 @@ class TotemControllerTest {
 
         ResponseEntity<Object> resposta = totemController.editarTotem(1L, totem);
 
-        assertEquals(200, resposta.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals(totem, resposta.getBody());
         verify(totemService).editarTotem(1L, totem);
     }
@@ -96,7 +97,7 @@ class TotemControllerTest {
 
         ResponseEntity<Object> resposta = totemController.editarTotem(99L, totem);
 
-        assertEquals(404, resposta.getStatusCodeValue());
+        assertEquals(HttpStatus.NOT_FOUND, resposta.getStatusCode());
         verify(totemService).editarTotem(99L, totem);
     }
 
@@ -108,7 +109,7 @@ class TotemControllerTest {
 
         ResponseEntity<Object> resposta = totemController.editarTotem(1L, totem);
 
-        assertEquals(422, resposta.getStatusCodeValue());
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
         verify(totemService).editarTotem(1L, totem);
     }
 
@@ -120,7 +121,7 @@ class TotemControllerTest {
 
         ResponseEntity<Object> resposta = totemController.excluirTotem(1L);
 
-        assertEquals(200, resposta.getStatusCodeValue());
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals(totem, resposta.getBody());
         verify(totemService).excluirTotem(1L);
     }
@@ -132,7 +133,7 @@ class TotemControllerTest {
 
         ResponseEntity<Object> resposta = totemController.excluirTotem(99L);
 
-        assertEquals(404, resposta.getStatusCodeValue());
+        assertEquals(HttpStatus.NOT_FOUND, resposta.getStatusCode());
         verify(totemService).excluirTotem(99L);
     }
 

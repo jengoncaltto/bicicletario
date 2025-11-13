@@ -20,8 +20,6 @@ public class Tranca {
     @Column(name = "ano_de_fabricacao", nullable = false)
     private String anoDeFabricacao;
 
-    //private String localizacao;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatusTranca status;

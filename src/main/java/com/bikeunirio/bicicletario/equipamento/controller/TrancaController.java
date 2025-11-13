@@ -29,22 +29,6 @@ public class TrancaController {
     }
 
     //---------- cadastrar tranca ----------
-    @PostMapping
-    public ResponseEntity<Object> cadastrarTranca(@RequestBody Tranca tranca) {
-        try {
-            if (tranca.getNumero() != null || tranca.getStatus() != null) {
-                return erro422(new IllegalArgumentException(
-                        "Número e status não podem ser enviados na criação."
-                ));
-            }
-            Tranca novaTranca= trancaService.cadastrarTranca(tranca);
-            return ResponseEntity.ok(novaTranca);
-        } catch (IllegalArgumentException e) {
-            // Caso os dados sejam inválidos
-            return erro422(e);
-        }
-    }
-    // Controller: TrancaController
 
     @PostMapping
     public ResponseEntity<Object> cadastrarTranca(@RequestBody TrancaDTO trancaDTO) {
@@ -122,10 +106,6 @@ public class TrancaController {
         }
     }
 
-
-
-
-    //fora dos casos de uso implementados
      //---------- RETORNAR BICICLETA ASSOCIADA ----------
     @GetMapping("/{idTranca}/bicicleta")
     public ResponseEntity<Object> retornarBicicletaNaTranca(@PathVariable Long idTranca) {

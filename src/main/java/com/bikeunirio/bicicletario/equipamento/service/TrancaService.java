@@ -10,6 +10,7 @@ import java.util.List;
 
 @Service
 public class TrancaService {
+    private static final String TRANCA_NAO_ENCONTRADO = "Tranca não encontrada: ";
 
     @Autowired
     private TrancaRepository trancaRepository;
@@ -40,13 +41,13 @@ public class TrancaService {
     /* ---------- BUSCAR TRANCA POR ID ---------- */
     public Tranca buscarPorId(Long idTranca) {
         return trancaRepository.findById(idTranca)
-                .orElseThrow(() -> new IllegalArgumentException("Tranca não encontrada: " + idTranca));
+                .orElseThrow(() -> new IllegalArgumentException(TRANCA_NAO_ENCONTRADO + idTranca));
     }
 
     /* ---------- EDITAR TRANCA ---------- */
     public Tranca editarTranca(Long idTranca, Tranca novosDados) {
         Tranca existente = trancaRepository.findById(idTranca)
-                .orElseThrow(() -> new IllegalArgumentException("não encontrada: " + idTranca));
+                .orElseThrow(() -> new IllegalArgumentException(TRANCA_NAO_ENCONTRADO + idTranca));
 
         // NÃO EDITA numero (R3)
         // NÃO EDITA status (R3)
@@ -62,7 +63,7 @@ public class TrancaService {
         //R4: Apenas trancas que não estiverem com nenhuma bicicleta podem ser excluídas.
 
         Tranca trancaExistente = trancaRepository.findById(idTranca)
-                .orElseThrow(() -> new IllegalArgumentException("Tranca não encontrada: " + idTranca));
+                .orElseThrow(() -> new IllegalArgumentException(TRANCA_NAO_ENCONTRADO + idTranca));
 
         if(trancaExistente.getBicicleta() != null){
             throw new IllegalArgumentException("Só é possível excluir tranca sem bicicleta.");
@@ -76,7 +77,7 @@ public class TrancaService {
     /* ---------- RETORNAR BICICLETA NA TRANCA ---------- */
     public Object retornarBicicletaNaTranca(Long idTranca) {
         Tranca tranca = trancaRepository.findById(idTranca)
-                .orElseThrow(() -> new IllegalArgumentException("Tranca não encontrada: " + idTranca));
+                .orElseThrow(() -> new IllegalArgumentException(TRANCA_NAO_ENCONTRADO + idTranca));
 
         if (tranca.getBicicleta().getId() == null) {
             throw new IllegalArgumentException("Nenhuma bicicleta está presa nesta tranca.");
@@ -88,7 +89,7 @@ public class TrancaService {
     /* ---------- ALTERAR STATUS DA TRANCA ---------- */
     public Tranca alterarStatusDaTranca(Long idTranca, String acao) {
         Tranca tranca = trancaRepository.findById(idTranca)
-                .orElseThrow(() -> new IllegalArgumentException("Tranca não encontrada: " + idTranca));
+                .orElseThrow(() -> new IllegalArgumentException(TRANCA_NAO_ENCONTRADO + idTranca));
 
         try {
             StatusTranca novoStatus = StatusTranca.valueOf(acao.toUpperCase());

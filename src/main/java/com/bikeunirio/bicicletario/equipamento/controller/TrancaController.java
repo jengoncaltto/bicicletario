@@ -16,6 +16,16 @@ public class TrancaController {
     @Autowired
     private TrancaService trancaService;
 
+    /**
+     * Construtor padrão.
+     * O Spring irá injetar automaticamente os beans anotados com @Autowired,
+     * portanto este construtor pode permanecer vazio.
+     */
+    public TrancaController() {
+    }
+
+
+
     //---------- listar todas trancas ----------
     @GetMapping
     public ResponseEntity<List<Tranca>> listarTrancasCadastradas() {
@@ -115,14 +125,6 @@ public class TrancaController {
             return erro422(e);
         }
     }
-
-    /*   @PostMapping("/integrarNaRede")
-    public void integrarTrancaNaRede(@PathVariable int idTranca){}
-
-    @PostMapping("/retirarDaRede")
-    public void retirarTrancaDaRede(@PathVariable int idTranca){}
-
-*/
 
     /* ---------- MÉTODOS AUXILIARES DE ERRO ---------- */
     private ResponseEntity<Object> erro404(IllegalArgumentException e) {

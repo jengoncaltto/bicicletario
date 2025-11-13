@@ -3,6 +3,7 @@ package com.bikeunirio.bicicletario.equipamento.controller;
 import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusBicicleta;
 import com.bikeunirio.bicicletario.equipamento.service.BicicletaService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,11 +20,15 @@ public class BicicletaController {
     private static final String COD = "codigo";
     private static final String MSG = "mensagem";
 
+    @Autowired
+    private BicicletaService bicicletaService;
 
-    private final BicicletaService bicicletaService;
-
-    public BicicletaController(BicicletaService bicicletaService) {
-        this.bicicletaService = bicicletaService;
+    /**
+     * Construtor padrão.
+     * O Spring irá injetar automaticamente os beans anotados com @Autowired,
+     * portanto este construtor pode permanecer vazio.
+     */
+    public BicicletaController() {
     }
 
     @GetMapping

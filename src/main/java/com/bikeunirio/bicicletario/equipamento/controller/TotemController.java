@@ -21,8 +21,9 @@ public class TotemController {
 
 
     /**
-     * Construtor padrão obrigatório pelo JPA/Hibernate.
-     * Não deve ser removido ou modificado.
+     * Construtor padrão.
+     * O Spring irá injetar automaticamente os beans anotados com @Autowired,
+     * portanto este construtor pode permanecer vazio.
      */
     public TotemController() {
     }

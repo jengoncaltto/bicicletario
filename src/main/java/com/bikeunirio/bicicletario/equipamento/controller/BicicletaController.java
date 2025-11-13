@@ -14,9 +14,17 @@ import java.util.Map;
 @RestController
 @RequestMapping("/bicicleta")
 public class BicicletaController {
+    private static final String MSG_NAO_ENCONTRADA = "não encontrada";
+    private static final String CODIGO_NAO_ENCONTRADO = "NAO ENCONTRADO";
+    private static final String CODIGO_DADOS_INVALIDOS = "DADOS INVALIDOS";
+    private static final String MSG = "codigo";
+    private static final String COD = "mensagem";
 
-    @Autowired
-    private BicicletaService bicicletaService;
+    private final BicicletaService bicicletaService;
+
+    public BicicletaController(BicicletaService bicicletaService) {
+        this.bicicletaService = bicicletaService;
+    }
 
     @GetMapping
     public ResponseEntity<List<Bicicleta>> listarBicicletas() {
@@ -49,7 +57,7 @@ public class BicicletaController {
 
         } catch (IllegalArgumentException e) {
             // Caso a mensagem indique que não foi encontrada → 404
-            if (e.getMessage().contains("não encontrada")) {
+            if (e.getMessage().contains(MSG_NAO_ENCONTRADA)) {
                 return erro404(e);
             }
             // Caso contrário → 422
@@ -79,7 +87,7 @@ public class BicicletaController {
             return ResponseEntity.ok(atualizada);
         } catch (IllegalArgumentException e) {
             // Caso a mensagem indique que não foi encontrada → 404
-            if (e.getMessage().contains("não encontrada")) {
+            if (e.getMessage().contains(MSG_NAO_ENCONTRADA)) {
                 return erro404(e);
             }
             // Caso contrário → 422
@@ -117,7 +125,7 @@ public class BicicletaController {
             Bicicleta atualizada = bicicletaService.alterarStatusBicicleta(idBicicleta, acao);
             return ResponseEntity.ok(atualizada);
         } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrada")) {
+            if (e.getMessage().contains(MSG_NAO_ENCONTRADA)) {
                 return erro404(e);
             }
             return erro422(e);
@@ -132,12 +140,12 @@ public class BicicletaController {
     }
     private ResponseEntity<Object> erro404(IllegalArgumentException e){
         return ResponseEntity.status(404).body(
-                Map.of("codigo", "NAO ENCONTRADO", "mensagem", e.getMessage())
+                Map.of(COD, CODIGO_NAO_ENCONTRADO, MSG, e.getMessage())
         );
     }
     private ResponseEntity<Object> erro422(IllegalArgumentException e){
         return ResponseEntity.status(422).body(
-                Map.of("codigo", "DADOS INVALIDOS", "mensagem", e.getMessage())
+                Map.of(COD, CODIGO_DADOS_INVALIDOS, MSG, e.getMessage())
         );
 
     }

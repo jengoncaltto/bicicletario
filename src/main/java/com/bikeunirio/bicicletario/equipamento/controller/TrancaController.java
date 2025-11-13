@@ -70,31 +70,38 @@ public class TrancaController {
     }
 
      //---------- editar tranca ----------
+     @PutMapping("/{idTranca}")
+     public ResponseEntity<Object> editarTranca(@PathVariable Long idTranca,
+                                                @RequestBody TrancaEditarDTO trancaDTO) {
+         try {
+             // 1. Busca a tranca existente
+             Tranca trancaAtual = trancaService.buscarPorId(idTranca);
 
-    @PutMapping("/{idTranca}")
-    public ResponseEntity<Object> editarTranca(@PathVariable Long idTranca,
-                                               @RequestBody TrancaEditarDTO trancaDTO) {
-        try {
-            // Busca a tranca existente
-            Tranca atual = trancaService.buscarPorId(idTranca);
+             // 2. Valida os dados do DTO (Regra R2 - Dados obrigatórios)
+             if (trancaDTO.getModelo() == null || trancaDTO.getModelo().isBlank()) {
+                 throw new IllegalArgumentException("Modelo é obrigatório.");
+             }
+             if (trancaDTO.getAnoDeFabricacao() == null) {
+                 throw new IllegalArgumentException("Ano de Fabricação é obrigatório.");
+             }
 
-            // Mapeia os dados do DTO para a entidade
-            Tranca novosDados = new Tranca();
-            novosDados.setModelo(trancaDTO.getModelo());
-            novosDados.setAnoDeFabricacao(trancaDTO.getAnoDeFabricacao());
+             // 3. Mapeia os dados do DTO para a entidade *EXISTENTE*
+             trancaAtual.setModelo(trancaDTO.getModelo());
+             trancaAtual.setAnoDeFabricacao(trancaDTO.getAnoDeFabricacao());
 
-            // Chama o serviço para atualizar
-            Tranca atualizada = trancaService.editarTranca(idTranca, novosDados);
+             // 4. Chama o serviço para salvar a entidade *atualizada*
+             Tranca atualizada = trancaService.editarTranca(idTranca, trancaAtual);
 
-            return ResponseEntity.ok(atualizada);
+             return ResponseEntity.ok(atualizada);
 
-        } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrada")) {
-                return erro404(e);
-            }
-            return erro422(e);
-        }
-    }
+         } catch (IllegalArgumentException e) {
+             if (e.getMessage().contains("não encontrada")) {
+                 return erro404(e);
+             }
+             // Erros de validação (como modelo em branco) caem aqui
+             return erro422(e);
+         }
+     }
 
 
 

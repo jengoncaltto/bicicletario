@@ -6,5 +6,6 @@ public enum StatusBicicleta {
     NOVA,
     APOSENTADA,
     REPARO_SOLICITADO,
-    EM_REPARO
+    EM_REPARO,
+    EXCLUIDA
 }

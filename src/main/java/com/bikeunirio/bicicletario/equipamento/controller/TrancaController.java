@@ -16,25 +16,31 @@ public class TrancaController {
     @Autowired
     private TrancaService trancaService;
 
-    /* ---------- LISTAR TODAS AS TRANÇAS ---------- */
+    //---------- listar todas trancas ----------
     @GetMapping
     public ResponseEntity<List<Tranca>> listarTrancasCadastradas() {
         List<Tranca> trancas = trancaService.listarTrancas();
         return ResponseEntity.ok(trancas);
     }
 
-    /* ---------- CADASTRAR NOVA TRANCA ---------- */
+    //---------- cadastrar tranca ----------
     @PostMapping
     public ResponseEntity<Object> cadastrarTranca(@RequestBody Tranca tranca) {
         try {
-            Tranca nova = trancaService.cadastrarTranca(tranca);
-            return ResponseEntity.ok(nova);
+            if (tranca.getNumero() != null || tranca.getStatus() != null) {
+                return erro422(new IllegalArgumentException(
+                        "Número e status não podem ser enviados na criação."
+                ));
+            }
+            Tranca novaTranca= trancaService.cadastrarTranca(tranca);
+            return ResponseEntity.ok(novaTranca);
         } catch (IllegalArgumentException e) {
+            // Caso os dados sejam inválidos
             return erro422(e);
         }
     }
 
-    /* ---------- BUSCAR TRANCA POR ID ---------- */
+     // ---------- buscar tranca por id ----------
     @GetMapping("/{idTranca}")
     public ResponseEntity<Object> buscarTrancaPorId(@PathVariable Long idTranca) {
         try {
@@ -45,10 +51,23 @@ public class TrancaController {
         }
     }
 
-    /* ---------- EDITAR TRANCA ---------- */
+     //---------- editar tranca ----------
     @PutMapping("/{idTranca}")
     public ResponseEntity<Object> editarTranca(@PathVariable Long idTranca, @RequestBody Tranca tranca) {
         try {
+
+            // pega a do banco e compara com os novos dados(a "nova" tranca que foi passada)
+            Tranca atual = trancaService.buscarPorId(idTranca);
+
+            if (tranca.getNumero() != null &&
+                    !tranca.getNumero().equals(atual.getNumero())) {
+                throw new IllegalArgumentException("O número da tranca não pode ser editado.");
+            }
+            if (tranca.getStatus() != null &&
+                    !tranca.getStatus().equals(atual.getStatus())) {
+                throw new IllegalArgumentException("O número da tranca não pode ser editado.");
+            }
+
             Tranca atualizada = trancaService.editarTranca(idTranca, tranca);
             return ResponseEntity.ok(atualizada);
         } catch (IllegalArgumentException e) {
@@ -59,18 +78,21 @@ public class TrancaController {
         }
     }
 
-    /* ---------- EXCLUIR TRANCA ---------- */
+    // ---------- remover tranca----------
     @DeleteMapping("/{idTranca}")
-    public ResponseEntity<Object> excluirTranca(@PathVariable Long idTranca) {
+    public ResponseEntity<Object> removerTranca(@PathVariable Long idTranca) {
         try {
-            Tranca removida = trancaService.excluirTranca(idTranca);
+            Tranca removida = trancaService.removerTranca(idTranca);
             return ResponseEntity.ok(removida);
         } catch (IllegalArgumentException e) {
             return erro404(e);
         }
     }
 
-    /* ---------- RETORNAR BICICLETA ASSOCIADA ---------- */
+
+
+    //fora dos casos de uso implementados
+     //---------- RETORNAR BICICLETA ASSOCIADA ----------
     @GetMapping("/{idTranca}/bicicleta")
     public ResponseEntity<Object> retornarBicicletaNaTranca(@PathVariable Long idTranca) {
         try {
@@ -80,8 +102,7 @@ public class TrancaController {
             return erro404(e);
         }
     }
-
-    /* ---------- ALTERAR STATUS DA TRANCA ---------- */
+     //---------- ALTERAR STATUS DA TRANCA ----------
     @PostMapping("/{idTranca}/status/{acao}")
     public ResponseEntity<Object> alterarStatusDaTranca(@PathVariable Long idTranca, @PathVariable String acao) {
         try {

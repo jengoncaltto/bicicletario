@@ -2,7 +2,11 @@ package com.bikeunirio.bicicletario.equipamento.repository;
 
 import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface BicicletaRepository extends JpaRepository<Bicicleta, Long> {
+
+    @Query("SELECT MAX(b.numero) FROM Bicicleta b")
+    Integer findMaxNumero();
 
 }

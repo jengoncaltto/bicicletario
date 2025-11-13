@@ -56,7 +56,7 @@ class TotemControllerTest {
         Totem totem = new Totem();
         when(totemService.cadastrarTotem(totem)).thenReturn(totem);
 
-        ResponseEntity<Object> resposta = totemController.CadastrarTotem(totem);
+        ResponseEntity<Object> resposta = totemController.cadastrarTotem(totem);
 
         assertEquals(200, resposta.getStatusCodeValue());
         assertEquals(totem, resposta.getBody());
@@ -69,7 +69,7 @@ class TotemControllerTest {
         when(totemService.cadastrarTotem(totem))
                 .thenThrow(new IllegalArgumentException("Dados inválidos"));
 
-        ResponseEntity<Object> resposta = totemController.CadastrarTotem(totem);
+        ResponseEntity<Object> resposta = totemController.cadastrarTotem(totem);
 
         assertEquals(422, resposta.getStatusCodeValue());
         verify(totemService).cadastrarTotem(totem);
@@ -139,13 +139,13 @@ class TotemControllerTest {
     /* ---------- Métodos ainda não implementados ---------- */
     @Test
     void devePermitirListarTrancas() {
-        totemController.ListarTrancasDeUmTotem(1, 10);
+        totemController.listarTrancasDeUmTotem(1L);
         assertTrue(true);
     }
 
     @Test
     void devePermitirListarBicicletas() {
-        totemController.ListarBicicletasDeUmTotem(1, 5);
+        totemController.ListarBicicletasDeUmTotem(1L);
         assertTrue(true);
     }
 }

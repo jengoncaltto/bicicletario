@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class TrancaServiceTest {
+public class TrancaServiceTest {
 
     @Mock
     private TrancaRepository trancaRepository;
@@ -44,9 +44,8 @@ class TrancaServiceTest {
     @Test
     void deveCadastrarTrancaComSucesso() {
         Tranca nova = new Tranca();
-        nova.setNumero(123);
-        nova.setModelo("Nova Tranca");
         nova.setAnoDeFabricacao("2024");
+        nova.setModelo("Nova Tranca");
 
         when(trancaRepository.save(nova)).thenReturn(nova);
 
@@ -108,24 +107,30 @@ class TrancaServiceTest {
 
     /* ---------- excluirTranca ---------- */
     @Test
-    void deveExcluirTrancaComSucesso() {
+    void deveRemoverTrancaComSucesso() {
         Tranca existente = new Tranca();
-        existente.setModelo("Excluir");
+        existente.setStatus(StatusTranca.APOSENTADA);
+        existente.setModelo("Novo Modelo");
+        existente.setAnoDeFabricacao("2024");
 
         when(trancaRepository.findById(1L)).thenReturn(Optional.of(existente));
 
-        Tranca resultado = trancaService.excluirTranca(1L);
+        // mocka o save — devolve o próprio objeto, evitando null
+        when(trancaRepository.save(any(Tranca.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        assertEquals("Excluir", resultado.getModelo());
-        verify(trancaRepository).delete(existente);
+        Tranca resultado = trancaService.removerTranca(1L);
+
+        assertEquals(StatusTranca.EXCLUIDA, resultado.getStatus());
+        verify(trancaRepository).save(existente);
     }
 
+
     @Test
-    void deveLancarErroAoExcluirTrancaInexistente() {
+    void deveLancarErroAoRemoverTrancaInexistente() {
         when(trancaRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class,
-                () -> trancaService.excluirTranca(99L));
+                () -> trancaService.removerTranca(99L));
     }
 
     /* ---------- retornarBicicletaNaTranca ---------- */

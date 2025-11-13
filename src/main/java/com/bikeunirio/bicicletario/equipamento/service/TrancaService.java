@@ -21,13 +21,21 @@ public class TrancaService {
 
     /* ---------- CADASTRAR NOVA TRANCA ---------- */
     public Tranca cadastrarTranca(Tranca tranca) {
-        if (tranca == null || tranca.getNumero() == null ||
-                tranca.getModelo() == null || tranca.getAnoDeFabricacao() == null) {
-            throw new IllegalArgumentException("Número, modelo e ano de fabricação são obrigatórios.");
-        }
+        // Dados obrigatórios: anoDeFabricacao, modelo
+        if (tranca.getAnoDeFabricacao() == null || tranca.getAnoDeFabricacao().isBlank())
+            throw new IllegalArgumentException("Ano de Fabricação é obrigatória.");
+        if (tranca.getModelo() == null || tranca.getModelo().isBlank())
+            throw new IllegalArgumentException("Modelo é obrigatória.");
+        // R1 – Status inicial sempre NOVA
+        tranca.setStatus(StatusTranca.NOVA);
+
+        //extra, no caso de uso não menciona nada de como definir o numero da tranca
+        // decidi fazer automaticamente(sistema fará)
+        Integer numeroGerado = gerarNumeroAutomatico();
+        tranca.setNumero(numeroGerado);
+
         return trancaRepository.save(tranca);
     }
-
 
     /* ---------- BUSCAR TRANCA POR ID ---------- */
     public Tranca buscarPorId(Long idTranca) {
@@ -38,24 +46,31 @@ public class TrancaService {
     /* ---------- EDITAR TRANCA ---------- */
     public Tranca editarTranca(Long idTranca, Tranca novosDados) {
         Tranca existente = trancaRepository.findById(idTranca)
-                .orElseThrow(() -> new IllegalArgumentException("Tranca não encontrada: " + idTranca));
+                .orElseThrow(() -> new IllegalArgumentException("não encontrada: " + idTranca));
 
-        existente.setNumero(novosDados.getNumero());
+        // NÃO EDITA numero (R3)
+        // NÃO EDITA status (R3)
+
         existente.setModelo(novosDados.getModelo());
         existente.setAnoDeFabricacao(novosDados.getAnoDeFabricacao());
-        existente.setLocalizacao(novosDados.getLocalizacao());
-        existente.setStatus(novosDados.getStatus());
 
         return trancaRepository.save(existente);
     }
 
     /* ---------- EXCLUIR TRANCA ---------- */
-    public Tranca excluirTranca(Long idTranca) {
-        Tranca existente = trancaRepository.findById(idTranca)
+    public Tranca removerTranca(Long idTranca) {
+        //R4: Apenas trancas que não estiverem com nenhuma bicicleta podem ser excluídas.
+
+        Tranca trancaExistente = trancaRepository.findById(idTranca)
                 .orElseThrow(() -> new IllegalArgumentException("Tranca não encontrada: " + idTranca));
 
-        trancaRepository.delete(existente);
-        return existente;
+        if(trancaExistente.getBicicleta() != null){
+            throw new IllegalArgumentException("Só é possível excluir tranca sem bicicleta.");
+
+        }
+        trancaExistente.setStatus(StatusTranca.EXCLUIDA);
+        return trancaRepository.save(trancaExistente);
+
     }
 
     /* ---------- RETORNAR BICICLETA NA TRANCA ---------- */
@@ -67,7 +82,6 @@ public class TrancaService {
             throw new IllegalArgumentException("Nenhuma bicicleta está presa nesta tranca.");
         }
 
-        // aqui você pode futuramente integrar com o serviço de bicicletas
         return tranca.getBicicleta().getId();
     }
 
@@ -83,6 +97,14 @@ public class TrancaService {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Status inválido: " + acao);
         }
+    }
+
+    /* funções usadas internamente na classe*/
+    private Integer gerarNumeroAutomatico() {
+        //função para adicionar um numero ao novo elemento cadastrado, se nao existir, será atribuido o numeor 1(primeiro),
+        // se existir já bicicletas, pegará sua posição e adicionará mais um
+        Integer maiorNumero = trancaRepository.findMaxNumero();
+        return (maiorNumero == null) ? 1 : maiorNumero + 1;
     }
 
 

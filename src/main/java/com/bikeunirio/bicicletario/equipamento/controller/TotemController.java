@@ -1,6 +1,8 @@
 package com.bikeunirio.bicicletario.equipamento.controller;
 
+import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import com.bikeunirio.bicicletario.equipamento.entity.Totem;
+import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.service.TotemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,24 +25,11 @@ public class TotemController {
     }
 
     @PostMapping
-    public ResponseEntity<Object> CadastrarTotem(@RequestBody Totem totem){
+    public ResponseEntity<Object> cadastrarTotem(@RequestBody Totem totem){
         try {
             Totem novo = totemService.cadastrarTotem(totem);
             return ResponseEntity.ok(novo);
         } catch (IllegalArgumentException e) {
-            return erro422(e);
-        }
-    }
-
-    @PutMapping("/{idTotem}")
-    public ResponseEntity<Object> editarTotem(@PathVariable Long idTotem, @RequestBody Totem totem) {
-        try {
-            Totem atualizado = totemService.editarTotem(idTotem, totem);
-            return ResponseEntity.ok(atualizado);
-        } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrado")) {
-                return erro404(e);
-            }
             return erro422(e);
         }
     }
@@ -56,10 +45,45 @@ public class TotemController {
     }
 
     @GetMapping("/{idTotem}/trancas")
-    public void ListarTrancasDeUmTotem(@PathVariable int idTotem, @PathVariable int idTranca){}
+    public ResponseEntity<Object> listarTrancasDeUmTotem(@PathVariable Long idTotem) {
+        try {
+            List<Tranca> trancas = totemService.listarTrancasDeUmTotem(idTotem);
+            return ResponseEntity.ok(trancas);
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrado")) {
+                return erro404(e);
+            }
+            return erro422(e);
+        }
+    }
 
     @GetMapping("/{idTotem}/bicicletas")
-    public void ListarBicicletasDeUmTotem(@PathVariable int idTotem,  @PathVariable int idBicicleta){}
+    public ResponseEntity<Object> ListarBicicletasDeUmTotem(@PathVariable Long idTotem){
+        try{
+            List<Bicicleta> bicicletas = totemService.listarBicicletasDeUmTotem(idTotem);
+            return ResponseEntity.ok(bicicletas);
+        } catch (IllegalArgumentException e) {
+            if(e.getMessage().contains("não encontrado")){
+                return erro404(e);
+            }
+            return erro422(e);
+        }
+    }
+
+
+    // fora dos casos de uso implementados
+    @PutMapping("/{idTotem}")
+    public ResponseEntity<Object> editarTotem(@PathVariable Long idTotem, @RequestBody Totem totem) {
+        try {
+            Totem atualizado = totemService.editarTotem(idTotem, totem);
+            return ResponseEntity.ok(atualizado);
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrado")) {
+                return erro404(e);
+            }
+            return erro422(e);
+        }
+    }
 
     private ResponseEntity<Object> erro404(IllegalArgumentException e){
         return ResponseEntity.status(404).body(

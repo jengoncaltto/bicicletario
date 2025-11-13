@@ -135,8 +135,47 @@ class BicicletaControllerTest {
     /* ---------- editarBicicleta ---------- */
 
     @Test
-    void deveEditarBicicletaComSucesso() {}
+    void deveEditarBicicletaComSucesso() {
+        // representa a bicicleta que já está cadastrada no sistema.
+        Bicicleta atual = new Bicicleta();
+        atual.setNumero(10);
+        atual.setStatus(StatusBicicleta.DISPONIVEL);
+        atual.setMarca("Caloi");
+        atual.setModelo("City Tour");
+        atual.setAno("2020");
 
+        // simula o JSON que o usuário envia para o endpoint PUT.
+        Bicicleta novosDados = new Bicicleta();
+        novosDados.setMarca("Sense");
+        novosDados.setModelo("Urban");
+        novosDados.setAno("2024");
+
+        // Quando o controller chamar service.retornarBicicleta(1L), devolva essa bicicleta atual;
+        // é ele que o controller usa para comparar número e status.
+        when(service.retornarBicicleta(1L)).thenReturn(atual);
+
+        // Essa é a bicicleta que será retornada após a edição — já com os dados atualizados.
+        Bicicleta atualizada = new Bicicleta();
+        atualizada.setNumero(10);
+        atualizada.setStatus(StatusBicicleta.DISPONIVEL);
+        atualizada.setMarca("Sense");
+        atualizada.setModelo("Urban");
+        atualizada.setAno("2024");
+
+        // Quando o controller pedir para editar a bicicleta 1 com esses dados, devolva a bicicleta atualizada.
+        when(service.editarBicicleta(1L, novosDados)).thenReturn(atualizada);
+
+        // Act
+        ResponseEntity<Object> resposta = controller.editarDadosBicicleta(1L, novosDados);
+
+        // Assert
+        assertEquals(200, resposta.getStatusCodeValue());  //Edição válida deve retornar OK.
+        assertEquals(atualizada, resposta.getBody());              // Corpo da resposta deve ser a bicicleta atualizada
+
+        // Confirma que o controller chamou o método certo
+        verify(service).retornarBicicleta(1L);
+        verify(service).editarBicicleta(1L, novosDados);
+    }
 
     /* ---------- removerBicicleta ---------- */
     @Test
@@ -180,10 +219,10 @@ class BicicletaControllerTest {
         bike.setStatus(StatusBicicleta.EM_REPARO);
 
         // Quando o service for chamado, retorna a bicicleta
-        when(service.alterarStatusBicicleta(1L, "EM_REPARO")).thenReturn(bike);
+        when(service.alterarStatusBicicleta(1L, StatusBicicleta.EM_REPARO)).thenReturn(bike);
 
         // Chama o método do controller
-        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, "EM_REPARO");
+        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, StatusBicicleta.EM_REPARO);
 
         // Verifica o resultado
         assertEquals(200, resposta.getStatusCodeValue());
@@ -193,28 +232,14 @@ class BicicletaControllerTest {
     @Test
     void deveRetornar404QuandoBicicletaNaoForEncontrada() {
         // Quando o service lançar erro de "não encontrada"
-        when(service.alterarStatusBicicleta(99L, "DISPONIVEL"))
+        when(service.alterarStatusBicicleta(99L, StatusBicicleta.DISPONIVEL))
                 .thenThrow(new IllegalArgumentException("Bicicleta não encontrada"));
 
         // Chama o método do controller
-        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(99L, "DISPONIVEL");
+        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(99L, StatusBicicleta.DISPONIVEL);
 
         // Verifica se retornou o status 404
         assertEquals(404, resposta.getStatusCodeValue());
     }
-
-    @Test
-    void deveRetornar422QuandoStatusForInvalido() {
-        // Quando o service lançar erro de status inválido
-        when(service.alterarStatusBicicleta(1L, "QUEBRADA"))
-                .thenThrow(new IllegalArgumentException("Status inválido: QUEBRADA"));
-
-        // Chama o método do controller
-        ResponseEntity<Object> resposta = controller.alterarStatusBicicleta(1L, "QUEBRADA");
-
-        // Verifica se retornou o status 422
-        assertEquals(422, resposta.getStatusCodeValue());
-    }
-
 
 }

@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,6 +98,8 @@ class TotemServiceTest {
     @Test
     void deveExcluirTotemComSucesso() {
         Totem totem = new Totem();
+        totem.setTrancas(new ArrayList<>()); // evita NullPointer
+
         when(repository.findById(1L)).thenReturn(Optional.of(totem));
 
         Totem removido = service.excluirTotem(1L);

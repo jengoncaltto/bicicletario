@@ -57,8 +57,8 @@ class TrancaControllerTest {
     @Test
     void deveCadastrarTrancaComSucesso() {
         Tranca nova = new Tranca();
-        nova.setNumero(202);
         nova.setModelo("Nova Tranca");
+        nova.setAnoDeFabricacao("2023");
 
         when(trancaService.cadastrarTranca(nova)).thenReturn(nova);
 
@@ -148,26 +148,26 @@ class TrancaControllerTest {
 
     /* ---------- excluirTranca ---------- */
     @Test
-    void deveExcluirTrancaComSucesso() {
+    void deveRemoverTrancaComSucesso() {
         Tranca tranca = new Tranca();
-        when(trancaService.excluirTranca(1L)).thenReturn(tranca);
+        when(trancaService.removerTranca(1L)).thenReturn(tranca);
 
-        ResponseEntity<Object> resposta = trancaController.excluirTranca(1L);
+        ResponseEntity<Object> resposta = trancaController.removerTranca(1L);
 
         assertEquals(200, resposta.getStatusCodeValue());
         assertEquals(tranca, resposta.getBody());
-        verify(trancaService).excluirTranca(1L);
+        verify(trancaService).removerTranca(1L);
     }
 
     @Test
-    void deveRetornarErro404AoExcluirTrancaNaoEncontrada() {
-        when(trancaService.excluirTranca(99L))
+    void deveRetornarErro404AoRemoverTrancaNaoEncontrada() {
+        when(trancaService.removerTranca(99L))
                 .thenThrow(new IllegalArgumentException("Tranca não encontrada"));
 
-        ResponseEntity<Object> resposta = trancaController.excluirTranca(99L);
+        ResponseEntity<Object> resposta = trancaController.removerTranca(99L);
 
         assertEquals(404, resposta.getStatusCodeValue());
-        verify(trancaService).excluirTranca(99L);
+        verify(trancaService).removerTranca(99L);
     }
 
     /* ---------- retornarBicicletaNaTranca ---------- */

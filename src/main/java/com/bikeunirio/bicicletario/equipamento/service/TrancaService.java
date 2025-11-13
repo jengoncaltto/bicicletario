@@ -89,6 +89,7 @@ public class TrancaService {
         return tranca.getBicicleta().getId();
     }
 
+
     /* ---------- ALTERAR STATUS DA TRANCA ---------- */
     public Tranca alterarStatusDaTranca(Long idTranca, String acao) {
         Tranca tranca = trancaRepository.findById(idTranca)

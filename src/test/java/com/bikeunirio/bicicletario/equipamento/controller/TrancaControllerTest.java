@@ -1,6 +1,9 @@
 package com.bikeunirio.bicicletario.equipamento.controller;
 
+import com.bikeunirio.bicicletario.equipamento.dto.IntegrarTrancaRequestDTO;
+import com.bikeunirio.bicicletario.equipamento.dto.RetiradaTrancaRequestDTO;
 import com.bikeunirio.bicicletario.equipamento.dto.TrancaDTO;
+import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
 import com.bikeunirio.bicicletario.equipamento.service.TrancaService;
@@ -14,9 +17,11 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @ExtendWith(MockitoExtension.class)
 class TrancaControllerTest {
@@ -262,4 +267,207 @@ class TrancaControllerTest {
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
         verify(trancaService).alterarStatusDaTranca(1L, "QUEBRADA");
     }
+
+    /*------------------trancar------------*/
+    @Test
+    void deveTrancarComSucesso() {
+        Tranca tranca = new Tranca();
+
+        when(trancaService.trancar(1L)).thenReturn(tranca);
+
+        ResponseEntity<Object> resposta = trancaController.trancar(1L);
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+        assertSame(tranca, resposta.getBody());
+
+        verify(trancaService).trancar(1L);
+    }
+
+    @Test
+    void deveRetornar404AoTrancarQuandoTrancaNaoEncontrada() {
+        Long idTranca = 10L;
+
+        when(trancaService.trancar(idTranca))
+                .thenThrow(new IllegalArgumentException("Tranca não encontrada"));
+
+        ResponseEntity<Object> resposta = trancaController.trancar(idTranca);
+
+        assertEquals(HttpStatus.NOT_FOUND, resposta.getStatusCode());
+
+        Map<String, Object> body = (Map<String, Object>) resposta.getBody();
+        assertEquals("Tranca não encontrada", body.get("mensagem"));
+
+        verify(trancaService).trancar(idTranca);
+    }
+
+    @Test
+    void deveRetornar422AoTrancarQuandoFalhar() {
+        Long idTranca = 5L;
+
+        when(trancaService.trancar(idTranca))
+                .thenThrow(new IllegalArgumentException("Falha ao trancar"));
+
+        ResponseEntity<Object> resposta = trancaController.trancar(idTranca);
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
+
+        Map<String, Object> body = (Map<String, Object>) resposta.getBody();
+        assertEquals("Falha ao trancar", body.get("mensagem"));
+
+        verify(trancaService).trancar(idTranca);
+    }
+
+
+    /*---------------destrancar-----------*/
+
+    @Test
+    void deveDestrancarComSucesso() {
+        Long idTranca = 2L;
+        Tranca tranca = new Tranca();
+
+        when(trancaService.destrancar(idTranca)).thenReturn(tranca);
+
+        ResponseEntity<Object> resposta = trancaController.destrancar(idTranca);
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+        assertEquals(tranca, resposta.getBody());
+
+        verify(trancaService).destrancar(idTranca);
+    }
+
+    @Test
+    void deveRetornar404AoDestrancarQuandoTrancaNaoEncontrada() {
+        Long idTranca = 20L;
+
+        when(trancaService.destrancar(idTranca))
+                .thenThrow(new IllegalArgumentException("Tranca não encontrada"));
+
+        ResponseEntity<Object> resposta = trancaController.destrancar(idTranca);
+
+        assertEquals(HttpStatus.NOT_FOUND, resposta.getStatusCode());
+
+        Map<String, Object> body = (Map<String, Object>) resposta.getBody();
+        assertEquals("Tranca não encontrada", body.get("mensagem"));
+
+        verify(trancaService).destrancar(idTranca);
+    }
+
+    @Test
+    void deveRetornar422AoDestrancarQuandoFalhar() {
+        Long idTranca = 3L;
+
+        when(trancaService.destrancar(idTranca))
+                .thenThrow(new IllegalArgumentException("Tranca com problema"));
+
+        ResponseEntity<Object> resposta = trancaController.destrancar(idTranca);
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
+
+        Map<String, Object> body = (Map<String, Object>) resposta.getBody();
+        assertEquals("Tranca com problema", body.get("mensagem"));
+
+        verify(trancaService).destrancar(idTranca);
+    }
+
+    /* ---------- integrarNaRede ---------- */
+    @Test
+    void deveIntegrarTrancaNaRedeComSucesso() {
+        IntegrarTrancaRequestDTO dto = new IntegrarTrancaRequestDTO();
+        dto.setNumeroTranca(100);
+        dto.setMatriculaReparador(123L);
+
+        Tranca trancaIntegrada = new Tranca();
+        trancaIntegrada.setNumero(100);
+
+        when(trancaService.integrarNaRede(100, 123L)).thenReturn(trancaIntegrada);
+
+        ResponseEntity<Object> resposta = trancaController.integrarNaRede(dto);
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+        assertEquals(trancaIntegrada, resposta.getBody());
+
+        verify(trancaService).integrarNaRede(100, 123L);
+    }
+
+    @Test
+    void deveRetornarErro422QuandoFalharIntegracao() {
+        IntegrarTrancaRequestDTO dto = new IntegrarTrancaRequestDTO();
+        dto.setNumeroTranca(50);
+        dto.setMatriculaReparador(999L);
+
+        when(trancaService.integrarNaRede(50, 999L))
+                .thenThrow(new IllegalArgumentException("Falha ao integrar tranca."));
+
+        ResponseEntity<Object> resposta = trancaController.integrarNaRede(dto);
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
+
+        Map<String, Object> body = (Map<String, Object>) resposta.getBody();
+        assertEquals("Falha ao integrar tranca.", body.get("mensagem"));
+
+        verify(trancaService).integrarNaRede(50, 999L);
+    }
+
+    /* ---------- retirarTrancaDaRede ---------- */
+    @Test
+    void deveRetirarTrancaDaRedeComSucesso() {
+        RetiradaTrancaRequestDTO dto = new RetiradaTrancaRequestDTO();
+        dto.setNumeroTranca(30);
+        dto.setOperacao("REPARO");
+        dto.setMatriculaReparador(111L);
+
+        when(trancaService.retirarTrancaDaRede(30, "REPARO", 111L))
+                .thenReturn("Tranca retirada com sucesso.");
+
+        ResponseEntity<Object> resposta = trancaController.retirarTrancaDaRede(dto);
+
+        assertEquals(HttpStatus.OK, resposta.getStatusCode());
+
+        Map<String, Object> body = (Map<String, Object>) resposta.getBody();
+        assertEquals("Tranca retirada com sucesso.", body.get("mensagem"));
+
+        verify(trancaService).retirarTrancaDaRede(30, "REPARO", 111L);
+    }
+
+    @Test
+    void deveRetornar404AoRetirarTrancaComNumeroInvalido() {
+        RetiradaTrancaRequestDTO dto = new RetiradaTrancaRequestDTO();
+        dto.setNumeroTranca(-1);
+        dto.setOperacao("REPARO");
+        dto.setMatriculaReparador(111L);
+
+        when(trancaService.retirarTrancaDaRede(-1, "REPARO", 111L))
+                .thenThrow(new IllegalArgumentException("Número inválido."));
+
+        ResponseEntity<Object> resposta = trancaController.retirarTrancaDaRede(dto);
+
+        assertEquals(HttpStatus.NOT_FOUND, resposta.getStatusCode());
+
+        Map<String, Object> body = (Map<String, Object>) resposta.getBody();
+        assertEquals("Número inválido.", body.get("mensagem"));
+
+        verify(trancaService).retirarTrancaDaRede(-1, "REPARO", 111L);
+    }
+
+    @Test
+    void deveRetornar422AoFalharRetiradaDaRede() {
+        RetiradaTrancaRequestDTO dto = new RetiradaTrancaRequestDTO();
+        dto.setNumeroTranca(90);
+        dto.setOperacao("APOSENTADORIA");
+        dto.setMatriculaReparador(222L);
+
+        when(trancaService.retirarTrancaDaRede(90, "APOSENTADORIA", 222L))
+                .thenThrow(new IllegalArgumentException("Operação não permitida."));
+
+        ResponseEntity<Object> resposta = trancaController.retirarTrancaDaRede(dto);
+
+        assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
+
+        Map<String, Object> body = (Map<String, Object>) resposta.getBody();
+        assertEquals("Operação não permitida.", body.get("mensagem"));
+
+        verify(trancaService).retirarTrancaDaRede(90, "APOSENTADORIA", 222L);
+    }
+
+
 }

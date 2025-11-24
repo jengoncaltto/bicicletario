@@ -1,5 +1,7 @@
 package com.bikeunirio.bicicletario.equipamento.controller;
 
+import com.bikeunirio.bicicletario.equipamento.dto.BicicletaRedeDTO;
+import com.bikeunirio.bicicletario.equipamento.dto.RetiradaBicicletaRequestDTO;
 import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusBicicleta;
 import com.bikeunirio.bicicletario.equipamento.service.BicicletaService;
@@ -106,20 +108,34 @@ public class BicicletaController {
 
     @PostMapping("/integrarNaRede")
     public ResponseEntity<Object> incluirBicicletaNaRede(@RequestBody BicicletaRedeDTO dto) {
-
         try {
-            String mensagem = bicicletaService.incluirBicicletaNaRede(dto.getIdBicicleta());
+            String mensagem = bicicletaService.incluirBicicletaNaRede(dto.getNumeroBicicleta(), dto.getMatriculaReparador());
             return ResponseEntity.ok(Map.of(MSG, mensagem));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(422).body(Map.of(
-                    "erro", e.getMessage()
-            ));
+            return erro422(e);
         }
     }
 
+
+    @PostMapping("/retirarDaRede")
+    public ResponseEntity<Object> retirarBicicletaDaRede(@RequestBody RetiradaBicicletaRequestDTO dto) {
+        try {
+            String mensagem = bicicletaService.retirarBicicletaDaRede(
+                    dto.getNumeroTranca(),
+                    dto.getStatusAcaoReparador(),   // "reparo" ou "aposentadoria"
+                    dto.getIdBicicleta()
+            );
+
+            return ResponseEntity.ok(Map.of("mensagem", mensagem));
+
+        } catch (IllegalArgumentException e) {
+            return erro422(e);
+        }
+    }
+
+
     @PostMapping("/{idBicicleta}/status/{acao}")
-    public ResponseEntity<Object> alterarStatusBicicleta(@PathVariable Long idBicicleta,
-                                                         @PathVariable String acao) {
+    public ResponseEntity<Object> alterarStatusBicicleta(@PathVariable Long idBicicleta, @PathVariable String acao) {
         try {
             StatusBicicleta status = converterParaStatusBicicleta(acao); // método separado
             Bicicleta atualizada = bicicletaService.alterarStatusBicicleta(idBicicleta, status);
@@ -132,6 +148,8 @@ public class BicicletaController {
         }
     }
 
+
+
     /* ---------- auxiliares ---------- */
     private StatusBicicleta converterParaStatusBicicleta(String acao) {
         try {
@@ -141,17 +159,6 @@ public class BicicletaController {
         }
     }
 
-    public static class BicicletaRedeDTO {
-        private Long idBicicleta;
-
-        public Long getIdBicicleta() {
-            return idBicicleta;
-        }
-
-        public void setIdBicicleta(Long idBicicleta) {
-            this.idBicicleta = idBicicleta;
-        }
-    }
 
     private ResponseEntity<Object> erro404(IllegalArgumentException e) {
         return ResponseEntity.status(404).body(

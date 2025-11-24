@@ -1,6 +1,7 @@
 package com.bikeunirio.bicicletario.equipamento.service;
 
 import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
+import com.bikeunirio.bicicletario.equipamento.entity.Totem;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
 import com.bikeunirio.bicicletario.equipamento.repository.TrancaRepository;
@@ -8,9 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +26,10 @@ class TrancaServiceTest {
     @Mock
     private TrancaRepository trancaRepository;
 
+    @Mock
+    private EmailService emailService;
+
+    @Spy
     @InjectMocks
     private TrancaService trancaService;
 
@@ -181,5 +188,161 @@ class TrancaServiceTest {
         assertThrows(IllegalArgumentException.class,
                 () -> trancaService.alterarStatusDaTranca(1L, "QUEBRADA"));
     }
+
+    /*------------destrancar -----------*/
+
+    @Test
+    void deveDestrancarComSucesso() {
+        Tranca tr = new Tranca();
+        tr.setId(1L);
+        tr.setStatus(StatusTranca.OCUPADA);
+
+        doReturn(tr).when(trancaService).buscarPorId(1L);
+        when(trancaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Tranca resultado = trancaService.destrancar(1L);
+
+        assertEquals(StatusTranca.LIVRE, resultado.getStatus());
+        verify(trancaRepository).save(tr);
+    }
+
+    @Test
+    void deveLancarErroQuandoTrancaJaEstaLivre() {
+        Tranca tr = new Tranca();
+        tr.setId(1L);
+        tr.setStatus(StatusTranca.LIVRE);
+
+        doReturn(tr).when(trancaService).buscarPorId(1L);
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> trancaService.destrancar(1L)
+        );
+
+        assertEquals("A tranca já está livre.", ex.getMessage());
+        verify(trancaRepository, never()).save(any());
+    }
+
+     /*-----------trancar-------------*/
+
+    @Test
+    void deveTrancarComSucesso() {
+        Tranca tr = new Tranca();
+        tr.setId(1L);
+        tr.setStatus(StatusTranca.LIVRE);
+
+        // Mock do buscarPorId()
+        doReturn(tr).when(trancaService).buscarPorId(1L);
+
+        // Quando salvar, devolve o mesmo objeto atualizado
+        when(trancaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Tranca resultado = trancaService.trancar(1L);
+
+        assertEquals(StatusTranca.OCUPADA, resultado.getStatus());
+        verify(trancaRepository).save(tr);
+    }
+
+    @Test
+    void deveLancarErroQuandoTrancaJaEstaOcupada() {
+        Tranca tr = new Tranca();
+        tr.setId(1L);
+        tr.setStatus(StatusTranca.OCUPADA);
+
+        doReturn(tr).when(trancaService).buscarPorId(1L);
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> trancaService.trancar(1L)
+        );
+
+        assertEquals("A tranca já está ocupada.", ex.getMessage());
+        verify(trancaRepository, never()).save(any());
+    }
+
+    /*-----------integrar na rede----------*/
+
+    @Test
+    void deveIntegrarTrancaNovaNaRede() {
+
+        Tranca tr = new Tranca();
+        tr.setNumero(10);
+        tr.setStatus(StatusTranca.NOVA);
+
+        doReturn(tr).when(trancaService).buscarPorNumero(10);
+
+        when(trancaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        doNothing().when(emailService).enviarEmail(any(), any(), any());
+
+        Tranca resultado = trancaService.integrarNaRede(10, 999L);
+
+        assertEquals(StatusTranca.LIVRE, resultado.getStatus());
+        assertEquals(999L, resultado.getMatriculaReparador());
+        assertNotNull(resultado.getDataInsercao());
+        verify(trancaRepository).save(tr);
+    }
+
+    @Test
+    void deveLancarErroSeStatusInvalidoParaIntegrar() {
+
+        Tranca tr = new Tranca();
+        tr.setStatus(StatusTranca.LIVRE); // inválido
+
+        doReturn(tr).when(trancaService).buscarPorNumero(10);
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> trancaService.integrarNaRede(10, 123L)
+        );
+
+        assertEquals("A tranca deve estar 'nova' ou 'em reparo' para ser integrada.", ex.getMessage());
+    }
+
+    /*-----------retirar da rede-----------*/
+
+    @Test
+    void deveRetirarTrancaDaRedeComSucessoParaReparo() {
+
+        Tranca tr = new Tranca();
+        tr.setId(1L);
+        tr.setNumero(10);
+        tr.setStatus(StatusTranca.REPARO_SOLICITADO);
+        tr.setBicicleta(null);
+
+        Totem totem = new Totem();
+        totem.setTrancas(new ArrayList<>(List.of(tr)));
+        tr.setTotem(totem);
+
+        doReturn(tr).when(trancaService).buscarPorNumero(10);
+        doReturn(tr).when(trancaService).destrancar(1L);
+
+        when(trancaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        doNothing().when(emailService).enviarEmail(any(), any(), any());
+
+        String msg = trancaService.retirarTrancaDaRede(10, "reparo", 999L);
+
+        assertEquals("Tranca 10 retirada com sucesso.", msg);
+        assertEquals(StatusTranca.EM_REPARO, tr.getStatus());
+        assertNull(tr.getTotem());
+        verify(trancaRepository).save(tr);
+    }
+
+    @Test
+    void deveLancarErroSeStatusNaoForReparoSolicitado() {
+
+        Tranca tr = new Tranca();
+        tr.setStatus(StatusTranca.LIVRE);
+
+        doReturn(tr).when(trancaService).buscarPorNumero(10);
+
+        IllegalArgumentException ex = assertThrows(
+                IllegalArgumentException.class,
+                () -> trancaService.retirarTrancaDaRede(10, "reparo", 999L)
+        );
+
+        assertEquals("A tranca não está com reparo solicitado.", ex.getMessage());
+    }
+
+
 
 }

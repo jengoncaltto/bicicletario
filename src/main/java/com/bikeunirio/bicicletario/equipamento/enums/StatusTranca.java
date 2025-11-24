@@ -6,5 +6,6 @@ public enum StatusTranca {
     NOVA,           // Status inicial de uma tranca recém-cadastrada (UC13 R1)
     APOSENTADA,     // Tranca não será mais utilizada (UC12 A1)
     EM_REPARO,      // Tranca foi retirada para reparo (UC12),
+    REPARO_SOLICITADO,
     EXCLUIDA;
 }

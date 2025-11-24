@@ -1,5 +1,7 @@
 package com.bikeunirio.bicicletario.equipamento.controller;
 
+import com.bikeunirio.bicicletario.equipamento.dto.IntegrarTrancaRequestDTO;
+import com.bikeunirio.bicicletario.equipamento.dto.RetiradaTrancaRequestDTO;
 import com.bikeunirio.bicicletario.equipamento.dto.TrancaDTO;
 
 import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
@@ -17,18 +19,20 @@ public class TrancaController {
 
     private final TrancaService trancaService;
 
+
     public TrancaController(TrancaService trancaService) {
         this.trancaService = trancaService;
     }
 
-    //---------- listar todas trancas ----------
+
+    //---------- listar todas trancas
     @GetMapping
     public ResponseEntity<List<Tranca>> listarTrancasCadastradas() {
         List<Tranca> trancas = trancaService.listarTrancas();
         return ResponseEntity.ok(trancas);
     }
 
-    //---------- cadastrar tranca ----------
+    //---------- cadastrar tranca
 
     @PostMapping
     public ResponseEntity<Object> cadastrarTranca(@RequestBody TrancaDTO trancaDTO) {
@@ -57,7 +61,7 @@ public class TrancaController {
         }
     }
 
-     // ---------- buscar tranca por id ----------
+     // ---------- buscar tranca por id
     @GetMapping("/{idTranca}")
     public ResponseEntity<Object> buscarTrancaPorId(@PathVariable Long idTranca) {
         try {
@@ -68,10 +72,9 @@ public class TrancaController {
         }
     }
 
-     //---------- editar tranca ----------
+     //---------- editar tranca
      @PutMapping("/{idTranca}")
-     public ResponseEntity<Object> editarTranca(@PathVariable Long idTranca,
-                                                @RequestBody Tranca trancaAtualizada) {
+     public ResponseEntity<Object> editarTranca(@PathVariable Long idTranca, @RequestBody Tranca trancaAtualizada) {
          try {
              // 1. Busca a tranca existente
              Tranca trancaExistente = trancaService.buscarPorId(idTranca);
@@ -100,7 +103,7 @@ public class TrancaController {
          }
      }
 
-    // ---------- remover tranca----------
+    // ---------- remover tranca-
     @DeleteMapping("/{idTranca}")
     public ResponseEntity<Object> removerTranca(@PathVariable Long idTranca) {
         try {
@@ -111,7 +114,7 @@ public class TrancaController {
         }
     }
 
-     //---------- RETORNAR BICICLETA ASSOCIADA ----------
+     //---------- RETORNAR BICICLETA ASSOCIADA
     @GetMapping("/{idTranca}/bicicleta")
     public ResponseEntity<Object> retornarBicicletaNaTranca(@PathVariable Long idTranca) {
         try {
@@ -121,7 +124,8 @@ public class TrancaController {
             return erro404(e);
         }
     }
-     //---------- ALTERAR STATUS DA TRANCA ----------
+
+     //---------- ALTERAR STATUS DA TRANCA
     @PostMapping("/{idTranca}/status/{acao}")
     public ResponseEntity<Object> alterarStatusDaTranca(@PathVariable Long idTranca, @PathVariable String acao) {
         try {
@@ -134,6 +138,75 @@ public class TrancaController {
             return erro422(e);
         }
     }
+
+
+    // ---------- REALIZA TRANCAMENTO E MUDA STATUS, SE HOUVER BICICLETA, ASSOCIAR A TRANCA E ALTERA STATUS DA MESMA
+    @PostMapping("{idTranca}/trancar")
+    public ResponseEntity<Object> trancar(@PathVariable Long idTranca) {
+        try{
+            Object bicicleta = trancaService.trancar(idTranca);
+            return ResponseEntity.ok(bicicleta);
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrada")) {
+                return erro404(e);
+            }
+            return erro422(e);
+        }
+    }
+
+    // ---------- REALIZA DESTRANCAMENTO E MUDA STATUS, SE HOUVER BICICLETA, DESASSOCIAR DA TRANCA E ALTERA STATUS DA MESMA
+    @PostMapping("{idTranca}/destrancar")
+    public ResponseEntity<Object> destrancar(@PathVariable Long idTranca) {
+        try{
+            Tranca tranca = trancaService.destrancar(idTranca);
+            return ResponseEntity.ok(tranca);
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("não encontrada")) {
+                return erro404(e);
+            }
+            return erro422(e);
+        }
+    }
+
+    // ---------- INTEGRAR TRANCA NA REDE DE TOTENS
+    @PostMapping("/integrarNaRede")
+    public ResponseEntity<Object> integrarNaRede(@RequestBody IntegrarTrancaRequestDTO dto) {
+        try {
+            Tranca tranca = trancaService.integrarNaRede(
+                    dto.getNumeroTranca(),
+                    dto.getMatriculaReparador()
+            );
+            return ResponseEntity.ok(tranca);
+
+        } catch (IllegalArgumentException e) {
+            return erro422(e);
+        }
+    }
+
+
+    // ---------- RETIRAR UMA TRANCA PARA APOSENTADORIA OU REPARO
+    @PostMapping("/retirarDaRede")
+    public ResponseEntity<Object> retirarTrancaDaRede(@RequestBody RetiradaTrancaRequestDTO dto) {
+        try {
+
+            String mensagem = trancaService.retirarTrancaDaRede(
+                    dto.getNumeroTranca(),
+                    dto.getOperacao(),
+                    dto.getMatriculaReparador()
+            );
+
+            return ResponseEntity.ok(Map.of("mensagem", mensagem));
+
+        } catch (IllegalArgumentException e) {
+            // E1 – número inválido → 404
+            if (e.getMessage().contains("inválido")) {
+                return erro404(e);
+            }
+            // A2 ou outro erro → 422
+            return erro422(e);
+        }
+    }
+
 
     /* ---------- MÉTODOS AUXILIARES DE ERRO ---------- */
     private ResponseEntity<Object> erro404(IllegalArgumentException e) {

@@ -3,6 +3,8 @@ package com.bikeunirio.bicicletario.equipamento.entity;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "tranca")
 public class Tranca {
@@ -33,6 +35,12 @@ public class Tranca {
     @JoinColumn(name = "bicicleta_id")
     private Bicicleta bicicleta;
 
+    @Column(name = "data_insercao")
+    private LocalDateTime dataInsercao;
+    @Column(name = "matricula_reparador")
+    private Long matriculaReparador;
+
+
     public Tranca() {
         /**
          * Construtor padrão obrigatório pelo JPA/Hibernate.
@@ -42,6 +50,11 @@ public class Tranca {
 
     // --- Getters e Setters ---
     public Long getId() { return id; }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Integer getNumero() { return numero; }
     public void setNumero(Integer numero) { this.numero = numero; }
     public String getModelo() { return modelo; }
@@ -58,4 +71,16 @@ public class Tranca {
     public void setTotem(Totem totem) {
         this.totem = totem;
     }
+    public LocalDateTime getDataInsercao() { return dataInsercao; }
+    public void setDataInsercao(LocalDateTime dataInsercao) {
+        this.dataInsercao = dataInsercao;
+    }
+    public Long getMatriculaReparador() {
+        return matriculaReparador;
+    }
+
+    public void setMatriculaReparador(Long matriculaReparador) {
+        this.matriculaReparador = matriculaReparador;
+    }
+
 }

@@ -38,6 +38,19 @@ public class TotemController {
         }
     }
 
+    @PutMapping("/{idTotem}")
+    public ResponseEntity<Object> editarTotem(@PathVariable Long idTotem, @RequestBody Totem totem) {
+        try {
+            Totem atualizado = totemService.editarTotem(idTotem, totem);
+            return ResponseEntity.ok(atualizado);
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains(NAO_ENCONTRADO)) {
+                return erro404(e);
+            }
+            return erro422(e);
+        }
+    }
+
     @DeleteMapping("/{idTotem}")
     public ResponseEntity<Object> excluirTotem(@PathVariable Long idTotem) {
         try {
@@ -74,20 +87,6 @@ public class TotemController {
         }
     }
 
-
-    // fora dos casos de uso implementados
-    @PutMapping("/{idTotem}")
-    public ResponseEntity<Object> editarTotem(@PathVariable Long idTotem, @RequestBody Totem totem) {
-        try {
-            Totem atualizado = totemService.editarTotem(idTotem, totem);
-            return ResponseEntity.ok(atualizado);
-        } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains(NAO_ENCONTRADO)) {
-                return erro404(e);
-            }
-            return erro422(e);
-        }
-    }
 
     private ResponseEntity<Object> erro404(IllegalArgumentException e){
         return ResponseEntity.status(404).body(

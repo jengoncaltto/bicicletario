@@ -5,22 +5,29 @@ import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusBicicleta;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
 import com.bikeunirio.bicicletario.equipamento.repository.BicicletaRepository;
+import com.bikeunirio.bicicletario.equipamento.repository.TrancaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class BicicletaService {
     private final BicicletaRepository bicicletaRepository;
     private final EmailService emailService;
+    private final TrancaService trancaService;
+    private final TrancaRepository trancaRepository;
 
     @Autowired
-    public BicicletaService(BicicletaRepository bicicletaRepository, EmailService emailService) {
+    public BicicletaService(BicicletaRepository bicicletaRepository, EmailService emailService, TrancaService trancaService, TrancaRepository trancaRepository) {
         this.bicicletaRepository = bicicletaRepository;
         this.emailService = emailService;
+        this.trancaService = trancaService;
+        this.trancaRepository = trancaRepository;
     }
+
     /* ---------- UC10: Manter Bicicleta ---------- */
     public List<Bicicleta> listarBicicletas() {
         return bicicletaRepository.findAll();
@@ -73,8 +80,7 @@ public class BicicletaService {
 
     public Bicicleta removerBicicleta(Long idBicicleta) {
 
-        Bicicleta bike = bicicletaRepository.findById(idBicicleta)
-                .orElseThrow(() -> new IllegalArgumentException("não encontrada: " + idBicicleta));
+        Bicicleta bike = retornarBicicleta(idBicicleta);
 
         // R4 — só excluir se aposentada e sem tranca
         if (bike.getStatus() != StatusBicicleta.APOSENTADA) {
@@ -90,11 +96,17 @@ public class BicicletaService {
     }
 
     /* ---------- UC08: Incluir Bicicleta na Rede de Totens ---------- */
-    public String incluirBicicletaNaRede(Long idBicicleta) {
-        Bicicleta bicicleta = retornarBicicleta(idBicicleta);
+    public String incluirBicicletaNaRede(Integer numeroBicicleta, Long matriculaReparador) {
+        Bicicleta bicicleta = buscarPorNumero(numeroBicicleta);
 
         if (bicicleta.getTranca() == null) {
             throw new IllegalArgumentException("Bicicleta não está associada a nenhuma tranca.");
+        }
+
+        if (bicicleta.getStatus() == StatusBicicleta.EM_REPARO &&
+                !Objects.equals(bicicleta.getMatriculaReparador(), matriculaReparador)) {
+
+            throw new IllegalArgumentException("Apenas o reparador que retirou a bicicleta pode devolvê-la.");
         }
 
         Tranca tranca = bicicleta.getTranca();
@@ -105,8 +117,7 @@ public class BicicletaService {
         }
 
         // [Pré-condição] status válido
-        if (bicicleta.getStatus() != StatusBicicleta.NOVA &&
-                bicicleta.getStatus() != StatusBicicleta.EM_REPARO) {
+        if (bicicleta.getStatus() != StatusBicicleta.NOVA && bicicleta.getStatus() != StatusBicicleta.EM_REPARO) {
             throw new IllegalArgumentException("Bicicleta não está apta para inclusão (deve ser NOVA ou EM_REPARO).");
         }
 
@@ -141,11 +152,68 @@ public class BicicletaService {
     }
 
     public Bicicleta alterarStatusBicicleta(Long idBicicleta, StatusBicicleta acao) {
-        Bicicleta atualizada = bicicletaRepository.findById(idBicicleta)
-                .orElseThrow(() -> new IllegalArgumentException("não encontrada: " + idBicicleta));
-
+        Bicicleta atualizada = retornarBicicleta(idBicicleta);
         atualizada.setStatus(acao);
         return bicicletaRepository.save(atualizada);
+    }
+
+    /*-----------------UC09*---------------*/
+    public String retirarBicicletaDaRede(Integer numeroTranca, String operacao, Long idBicicleta) {
+
+        // Recuperar bicicleta
+        Bicicleta bicicleta = retornarBicicleta(idBicicleta);
+        Tranca tranca = bicicleta.getTranca();
+
+        if (tranca == null) {
+            throw new IllegalArgumentException("A bicicleta não está presa a nenhuma tranca.");
+        }
+        // ------------- [E1] Número da tranca inválido -----------------------
+        if (!numeroTranca.equals(tranca.getNumero())) {
+            throw new IllegalArgumentException("Número da tranca inválido.");
+        }
+        // ------------- [A2] Verificações de falha do UC -----------------------
+        if (bicicleta.getStatus() == StatusBicicleta.DISPONIVEL) {
+            throw new IllegalArgumentException("A bicicleta está disponível — não pode ser retirada.");
+        }
+        if (tranca.getStatus() == StatusTranca.LIVRE) {
+            throw new IllegalArgumentException("A tranca está livre — não há bicicleta para retirar.");
+        }
+
+
+        // A2.4 Abrir tranca
+        trancaService.destrancar(tranca.getId());
+
+        // A2.5 Retirar bicicleta
+        tranca.setBicicleta(null);
+
+        // A2.6 Ajustar status da bicicleta conforme operação
+        if (operacao.equalsIgnoreCase("aposentadoria")) {
+            bicicleta.setStatus(StatusBicicleta.APOSENTADA); // A1
+        } else if (operacao.equalsIgnoreCase("reparo")) {
+            bicicleta.setStatus(StatusBicicleta.EM_REPARO); // fluxo principal
+        } else {
+            throw new IllegalArgumentException("Operação inválida. Use 'reparo' ou 'aposentadoria'.");
+        }
+
+        // Atualizar banco
+        trancaRepository.save(tranca);
+        bicicletaRepository.save(bicicleta);
+
+        // A2.7 Registrar retirada
+        bicicleta.setDataInsercao(LocalDateTime.now());
+
+        // A2.8 Enviar e-mail
+        emailService.enviarEmail(
+                "reparador@empresa.com",
+                "Inclusão de Bicicleta na Rede",
+                String.format("Bicicleta %d incluída na tranca %d em %s.",
+                        bicicleta.getNumero(),
+                        tranca.getNumero(),
+                        bicicleta.getDataInsercao())
+        );
+
+        // A2.9 Mensagem final
+        return "Bicicleta " + bicicleta.getId() + " retirada com sucesso.";
     }
 
     /* funções usadas internamente na classe*/
@@ -154,5 +222,14 @@ public class BicicletaService {
         // se existir já bicicletas, pegará sua posição e adicionará mais um
         Integer maiorNumero = bicicletaRepository.findMaxNumero();
         return (maiorNumero == null) ? 1 : maiorNumero + 1;
+    }
+
+    protected Bicicleta buscarPorNumero(Integer numero) {
+        if (numero == null) {
+            throw new IllegalArgumentException("Número da bicicleta é obrigatório.");
+        }
+
+        return bicicletaRepository.findByNumero(numero)
+                .orElseThrow(() -> new IllegalArgumentException("Bicicleta não encontrada."));
     }
 }

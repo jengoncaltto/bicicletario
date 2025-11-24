@@ -31,6 +31,9 @@ public class Bicicleta {
 
     @Column(name = "data_insercao")
     private LocalDateTime dataInsercao;
+    @Column(name = "matricula_reparador")
+    private Long matriculaReparador;
+
 
     // Uma bicicleta está em uma tranca (opcional)
     @ManyToOne
@@ -51,6 +54,10 @@ public class Bicicleta {
     }
 
     public Long getId() { return id; }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getMarca() { return marca; }
     public void setMarca(String marca) { this.marca = marca; }
@@ -73,5 +80,11 @@ public class Bicicleta {
     }
     public void setDataInsercao(LocalDateTime dataInsercao) {
         this.dataInsercao = dataInsercao;
+    }
+    public Long getMatriculaReparador() {
+        return matriculaReparador;
+    }
+    public void setMatriculaReparador(Long matriculaReparador) {
+        this.matriculaReparador = matriculaReparador;
     }
 }

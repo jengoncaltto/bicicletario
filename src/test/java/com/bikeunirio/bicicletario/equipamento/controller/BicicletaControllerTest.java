@@ -324,16 +324,16 @@ class BicicletaControllerTest {
     /* ----------- incluirBicicletaRedeTotens--------*/
     @Test
     void deveIncluirBicicletaNaRedeComSucesso() {
-        BicicletaRedeDTO dto = new BicicletaRedeDTO();
-        dto.setIdBicicleta(1L);
-        dto.setIdFuncionario(123L);
-        dto.setIdTranca(99l);
+        BicicletaRedeDTO bicicletaRedeDTO = new BicicletaRedeDTO();
+        bicicletaRedeDTO.setIdBicicleta(1L);
+        bicicletaRedeDTO.setIdFuncionario(123L);
+        bicicletaRedeDTO.setIdTranca(99l);
 
         String mensagem = "Bicicleta incluída com sucesso na rede de totens.";
 
         when(service.incluirBicicletaNaRede(1L, 99l, 123L)).thenReturn(mensagem);
 
-        ResponseEntity<Object> resposta = controller.incluirBicicletaNaRede(dto);
+        ResponseEntity<Object> resposta = controller.incluirBicicletaNaRede(bicicletaRedeDTO);
 
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
 
@@ -345,15 +345,15 @@ class BicicletaControllerTest {
 
     @Test
     void deveRetornarErro422QuandoFalharAoIncluirBicicletaNaRede() {
-        BicicletaRedeDTO dto = new BicicletaRedeDTO();
-        dto.setIdTranca(88L);
-        dto.setIdBicicleta(2L);
-        dto.setIdFuncionario(555L);
+        BicicletaRedeDTO bicicletaRdDTO = new BicicletaRedeDTO();
+        bicicletaRdDTO.setIdTranca(88L);
+        bicicletaRdDTO.setIdBicicleta(2L);
+        bicicletaRdDTO.setIdFuncionario(555L);
 
         when(service.incluirBicicletaNaRede(2L, 88L, 555L))
                 .thenThrow(new IllegalArgumentException("Falha ao incluir bicicleta."));
 
-        ResponseEntity<Object> resposta = controller.incluirBicicletaNaRede(dto);
+        ResponseEntity<Object> resposta = controller.incluirBicicletaNaRede(bicicletaRdDTO);
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
 
@@ -368,15 +368,15 @@ class BicicletaControllerTest {
     @Test
     void deveRetirarBicicletaDaRedeComSucesso() {
 
-        RetiradaBicicletaRequestDTO dto = new RetiradaBicicletaRequestDTO();
-        dto.setNumeroTranca(10);
-        dto.setStatusAcaoReparador("reparo");
-        dto.setIdBicicleta(1L);
+        RetiradaBicicletaRequestDTO bicicletaRequestDTO = new RetiradaBicicletaRequestDTO();
+        bicicletaRequestDTO.setNumeroTranca(10);
+        bicicletaRequestDTO.setStatusAcaoReparador("reparo");
+        bicicletaRequestDTO.setIdBicicleta(1L);
 
         when(service.retirarBicicletaDaRede(10, "reparo", 1L))
                 .thenReturn("Bicicleta retirada com sucesso.");
 
-        ResponseEntity<Object> resposta = controller.retirarBicicletaDaRede(dto);
+        ResponseEntity<Object> resposta = controller.retirarBicicletaDaRede(bicicletaRequestDTO);
 
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals(
@@ -390,15 +390,15 @@ class BicicletaControllerTest {
     @Test
     void deveRetornarErro422QuandoFalharAoRetirarBicicletaDaRede() {
 
-        RetiradaBicicletaRequestDTO dto = new RetiradaBicicletaRequestDTO();
-        dto.setNumeroTranca(20);
-        dto.setStatusAcaoReparador("reparo");
-        dto.setIdBicicleta(2L);
+        RetiradaBicicletaRequestDTO retiradaBicicletaRequestDTO = new RetiradaBicicletaRequestDTO();
+        retiradaBicicletaRequestDTO.setNumeroTranca(20);
+        retiradaBicicletaRequestDTO.setStatusAcaoReparador("reparo");
+        retiradaBicicletaRequestDTO.setIdBicicleta(2L);
 
         when(service.retirarBicicletaDaRede(20, "reparo", 2L))
                 .thenThrow(new IllegalArgumentException("Dados inválidos."));
 
-        ResponseEntity<Object> resposta = controller.retirarBicicletaDaRede(dto);
+        ResponseEntity<Object> resposta = controller.retirarBicicletaDaRede(retiradaBicicletaRequestDTO);
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
         assertEquals(

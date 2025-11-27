@@ -129,7 +129,7 @@ public class BicicletaController {
                     dto.getIdBicicleta()
             );
 
-            return ResponseEntity.ok(Map.of("mensagem", mensagem));
+            return ResponseEntity.ok(Map.of(MSG, mensagem));
 
         } catch (IllegalArgumentException e) {
             return erro422(e);

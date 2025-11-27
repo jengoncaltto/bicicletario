@@ -1,6 +1,7 @@
 package com.bikeunirio.bicicletario.equipamento.entity;
 
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -30,7 +31,9 @@ public class Tranca {
     // Uma tranca pertence a um totem
     @ManyToOne
     @JoinColumn(name = "totem_id")
+    @JsonIgnore
     private Totem totem;
+
 
     // Uma tranca pode estar segurando uma bicicleta
     @OneToOne

@@ -97,7 +97,7 @@ public class BicicletaService {
 
     /* ---------- UC08: Incluir Bicicleta na Rede de Totens ---------- */
     public String incluirBicicletaNaRede(Long idBicicleta, Long idTranca, Long matriculaReparador) {
-        // 1. Buscar Bicicleta e Tranca (Correção do erro lógico)
+        // 1. Buscar Bicicleta e Tranca
         Bicicleta bicicleta = bicicletaRepository.findById(idBicicleta)
                 .orElseThrow(() -> new IllegalArgumentException("Bicicleta não encontrada."));
 
@@ -133,10 +133,10 @@ public class BicicletaService {
 
         tranca.setStatus(StatusTranca.OCUPADA);
         tranca.setBicicleta(bicicleta); // Associa a bike na tranca
-        bicicleta.setTranca(tranca);    // Associa a tranca na bike (importante manter consistência)
+        bicicleta.setTranca(tranca);    // Associa a tranca na bike
 
         bicicletaRepository.save(bicicleta);
-        trancaRepository.save(tranca); // Salvar a tranca também é importante
+        trancaRepository.save(tranca); // Salvar a tranca
 
         // [R2] Notificação por email
         try {

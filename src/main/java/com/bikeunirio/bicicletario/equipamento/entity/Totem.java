@@ -1,10 +1,13 @@
 package com.bikeunirio.bicicletario.equipamento.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.util.List;
 
 @Entity
 @Table(name = "totem")
+@Data
 public class Totem {
 
     @Id

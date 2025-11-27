@@ -1,5 +1,10 @@
 package com.bikeunirio.bicicletario.equipamento.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class TrancaDTO {
 
     private String modelo;
@@ -12,18 +17,6 @@ public class TrancaDTO {
 
 
     // Getters e Setters
-
-    public String getModelo() { return modelo; }
-    public void setModelo(String modelo) { this.modelo = modelo; }
-
-    public String getAnoDeFabricacao() { return anoDeFabricacao; }
-    public void setAnoDeFabricacao(String anoDeFabricacao) { this.anoDeFabricacao = anoDeFabricacao; }
-
-    public Long getTotemId() { return totemId; }
-    public void setTotemId(Long totemId) { this.totemId = totemId; }
-
-    public Long getBicicletaId() { return bicicletaId; }
-    public void setBicicletaId(Long bicicletaId) { this.bicicletaId = bicicletaId; }
 
 
 }

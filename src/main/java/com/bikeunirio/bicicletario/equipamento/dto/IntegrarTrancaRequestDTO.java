@@ -1,5 +1,10 @@
 package com.bikeunirio.bicicletario.equipamento.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class IntegrarTrancaRequestDTO {
     private Integer numeroTranca;
     private Long matriculaReparador;
@@ -8,14 +13,4 @@ public class IntegrarTrancaRequestDTO {
 
     }
 
-    public Integer getNumeroTranca() {
-        return numeroTranca;
-    }
-
-    public void setNumeroTranca(Integer numeroTranca) {
-        this.numeroTranca = numeroTranca;
-    }
-
-    public Long getMatriculaReparador() { return matriculaReparador; }
-    public void setMatriculaReparador(Long matriculaReparador) { this.matriculaReparador = matriculaReparador; }
 }

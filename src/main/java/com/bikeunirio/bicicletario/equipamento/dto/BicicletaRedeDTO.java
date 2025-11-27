@@ -1,23 +1,31 @@
 package com.bikeunirio.bicicletario.equipamento.dto;
 
-public  class BicicletaRedeDTO {
-    private Integer numeroBicicleta;
+public class BicicletaRedeDTO {
+    private Long idTranca;
+    private Long idBicicleta;
+    private Long idFuncionario;
 
-    private Long matriculaReparador;
-
-    public Integer getNumeroBicicleta() {
-        return numeroBicicleta;
+    public Long getIdTranca() {
+        return idTranca;
     }
 
-    public void setNumeroBicicleta(Integer numeroBicicleta) {
-        this.numeroBicicleta = numeroBicicleta;
+    public void setIdTranca(Long idTranca) {
+        this.idTranca = idTranca;
     }
 
-    public Long getMatriculaReparador() {
-        return matriculaReparador;
+    public Long getIdBicicleta() {
+        return idBicicleta;
     }
 
-    public void setMatriculaReparador(Long matriculaReparador) {
-        this.matriculaReparador = matriculaReparador;
+    public void setIdBicicleta(Long idBicicleta) {
+        this.idBicicleta = idBicicleta;
+    }
+
+    public Long getIdFuncionario() {
+        return idFuncionario;
+    }
+
+    public void setIdFuncionario(Long idFuncionario) {
+        this.idFuncionario = idFuncionario;
     }
 }

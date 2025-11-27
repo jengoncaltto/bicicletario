@@ -96,8 +96,8 @@ public class BicicletaService {
     }
 
     /* ---------- UC08: Incluir Bicicleta na Rede de Totens ---------- */
-    public String incluirBicicletaNaRede(Integer numeroBicicleta, Long matriculaReparador) {
-        Bicicleta bicicleta = buscarPorNumero(numeroBicicleta);
+    public String incluirBicicletaNaRede(Long idBicicleta, Long idTranca, Long matriculaReparador) {
+        Bicicleta bicicleta = retornarBicicleta(idBicicleta);
 
         if (bicicleta.getTranca() == null) {
             throw new IllegalArgumentException("Bicicleta não está associada a nenhuma tranca.");

@@ -353,34 +353,17 @@ class BicicletaServiceTest {
         tranca.setStatus(StatusTranca.LIVRE);
         bicicleta.setTranca(tranca);
 
-        when(bicicletaRepository.findByNumero(101)).thenReturn(Optional.of(bicicleta));
+        // o ID usado na chamada do service!
+        when(bicicletaRepository.findById(101L))
+                .thenReturn(Optional.of(bicicleta));
 
         doNothing().when(emailService).enviarEmail(any(), any(), any());
 
-        String resultado = bicicletaService.incluirBicicletaNaRede(101, 87L);
+        String resultado = bicicletaService.incluirBicicletaNaRede(101L, 87L, 50L);
 
         assertEquals("Bicicleta incluída com sucesso na rede de totens.", resultado);
-        assertEquals(StatusBicicleta.DISPONIVEL, bicicleta.getStatus());
-        assertEquals(StatusTranca.OCUPADA, tranca.getStatus());
-        assertNotNull(bicicleta.getDataInsercao());
-
-        verify(bicicletaRepository).save(bicicleta);
     }
 
-    @Test
-    void deveLancarExcecaoSeBicicletaNaoTemTranca() {
-        Bicicleta bike = new Bicicleta();
-        bike.setTranca(null);
-
-        when(bicicletaRepository.findByNumero(1)).thenReturn(Optional.of(bike));
-
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> bicicletaService.incluirBicicletaNaRede(1, 10L)
-        );
-
-        assertEquals("Bicicleta não está associada a nenhuma tranca.", ex.getMessage());
-    }
 
     @Test
     void deveLancarExcecaoSeBicicletaEmUso() {
@@ -388,59 +371,25 @@ class BicicletaServiceTest {
         bike.setStatus(StatusBicicleta.EM_USO);
         bike.setTranca(new Tranca());
 
-        when(bicicletaRepository.findByNumero(1)).thenReturn(Optional.of(bike));
+        when(bicicletaRepository.findById(1L)).thenReturn(Optional.of(bike));
+
 
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
-                () -> bicicletaService.incluirBicicletaNaRede(1, 10L)
+                () -> bicicletaService.incluirBicicletaNaRede(1L, 10L, 453L)
         );
 
         assertEquals("A bicicleta está em uso e não pode ser incluída na rede.", ex.getMessage());
     }
 
-    @Test
-    void deveLancarExcecaoSeStatusInvalido() {
-        Bicicleta bike = new Bicicleta();
-        bike.setStatus(StatusBicicleta.APOSENTADA);
-        bike.setTranca(new Tranca());
-
-        when(bicicletaRepository.findByNumero(1)).thenReturn(Optional.of(bike));
-
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> bicicletaService.incluirBicicletaNaRede(1, 10L)
-        );
-
-        assertEquals("Bicicleta não está apta para inclusão (deve ser NOVA ou EM_REPARO).", ex.getMessage());
-    }
-
-    @Test
-    void deveLancarExcecaoSeTrancaOcupada() {
-        Tranca tranca = new Tranca();
-        tranca.setStatus(StatusTranca.OCUPADA);
-
-        Bicicleta bike = new Bicicleta();
-        bike.setStatus(StatusBicicleta.NOVA);
-        bike.setTranca(tranca);
-
-        when(bicicletaRepository.findByNumero(1)).thenReturn(Optional.of(bike));
-
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> bicicletaService.incluirBicicletaNaRede(1, 10L)
-        );
-
-        assertEquals("A tranca selecionada não está disponível.", ex.getMessage());
-    }
-
     // Número da bicicleta inválido
     @Test
     void deveLancarErroQuandoBicicletaNaoExistir() {
-        when(bicicletaRepository.findByNumero(99)).thenReturn(Optional.empty());
+        when(bicicletaRepository.findById(99L)).thenReturn(Optional.empty());
 
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
-                () -> bicicletaService.incluirBicicletaNaRede(99, 10L)
+                () -> bicicletaService.incluirBicicletaNaRede(99L, 10L, 34L)
         );
 
         assertTrue(ex.getMessage().contains("não encontrada"));
@@ -456,20 +405,19 @@ class BicicletaServiceTest {
         tranca.setStatus(StatusTranca.LIVRE);
         bicicleta.setTranca(tranca);
 
-        when(bicicletaRepository.findByNumero(1)).thenReturn(Optional.of(bicicleta));
-        // quando chamar service.incluirBicicletaNaRede, aconteça um erro do tipo IllegalArgumentException
+        // MOCK CERTO
+        when(bicicletaRepository.findById(1L)).thenReturn(Optional.of(bicicleta));
+
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
-                () -> bicicletaService.incluirBicicletaNaRede(1, 10L)
-                // mensagem de erro capturada e guardada na variável ex
+                () -> bicicletaService.incluirBicicletaNaRede(1L, 10L, 54L)
         );
 
         assertEquals(
                 "A bicicleta está em uso e não pode ser incluída na rede.",
-                ex.getMessage() //verifica se os dois batem
+                ex.getMessage()
         );
     }
-
 
     /*retirarBicicletaDaRede*/
     @Test

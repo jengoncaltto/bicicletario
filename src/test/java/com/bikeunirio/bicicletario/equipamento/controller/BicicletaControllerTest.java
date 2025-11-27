@@ -324,48 +324,45 @@ class BicicletaControllerTest {
     /* ----------- incluirBicicletaRedeTotens--------*/
     @Test
     void deveIncluirBicicletaNaRedeComSucesso() {
-        // Arrange
         BicicletaRedeDTO dto = new BicicletaRedeDTO();
-        dto.setNumeroBicicleta(1);
-        dto.setMatriculaReparador(123L);
+        dto.setIdBicicleta(1L);
+        dto.setIdFuncionario(123L);
+        dto.setIdTranca(99l);
 
         String mensagem = "Bicicleta incluída com sucesso na rede de totens.";
 
-        when(service.incluirBicicletaNaRede(1, 123L)).thenReturn(mensagem);
+        when(service.incluirBicicletaNaRede(1L, 99l, 123L)).thenReturn(mensagem);
 
-        // Act
         ResponseEntity<Object> resposta = controller.incluirBicicletaNaRede(dto);
 
-        // Assert
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
 
         Map<String, Object> body = (Map<String, Object>) resposta.getBody();
         assertEquals(mensagem, body.get("mensagem"));
 
-        verify(service).incluirBicicletaNaRede(1, 123L);
+        verify(service).incluirBicicletaNaRede(1L, 99l, 123L);
     }
 
     @Test
     void deveRetornarErro422QuandoFalharAoIncluirBicicletaNaRede() {
-        // Arrange
         BicicletaRedeDTO dto = new BicicletaRedeDTO();
-        dto.setNumeroBicicleta(2);
-        dto.setMatriculaReparador(555L);
+        dto.setIdTranca(88L);
+        dto.setIdBicicleta(2L);
+        dto.setIdFuncionario(555L);
 
-        when(service.incluirBicicletaNaRede(2, 555L))
+        when(service.incluirBicicletaNaRede(2L, 88L, 555L))
                 .thenThrow(new IllegalArgumentException("Falha ao incluir bicicleta."));
 
-        // Act
         ResponseEntity<Object> resposta = controller.incluirBicicletaNaRede(dto);
 
-        // Assert
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
 
         Map<String, Object> body = (Map<String, Object>) resposta.getBody();
         assertEquals("Falha ao incluir bicicleta.", body.get("mensagem"));
 
-        verify(service).incluirBicicletaNaRede(2, 555L);
+        verify(service).incluirBicicletaNaRede(2L, 88L, 555L);
     }
+
 
     /*------------ retirarBicicletaRedeTotens -------*/
     @Test

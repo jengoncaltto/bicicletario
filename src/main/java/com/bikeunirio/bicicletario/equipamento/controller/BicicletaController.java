@@ -109,7 +109,10 @@ public class BicicletaController {
     @PostMapping("/integrarNaRede")
     public ResponseEntity<Object> incluirBicicletaNaRede(@RequestBody BicicletaRedeDTO dto) {
         try {
-            String mensagem = bicicletaService.incluirBicicletaNaRede(dto.getNumeroBicicleta(), dto.getMatriculaReparador());
+            String mensagem = bicicletaService.incluirBicicletaNaRede(
+                    dto.getIdBicicleta(),
+                    dto.getIdTranca(),
+                    dto.getIdFuncionario());
             return ResponseEntity.ok(Map.of(MSG, mensagem));
         } catch (IllegalArgumentException e) {
             return erro422(e);

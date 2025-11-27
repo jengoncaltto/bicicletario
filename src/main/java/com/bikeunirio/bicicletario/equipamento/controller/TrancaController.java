@@ -211,7 +211,7 @@ public class TrancaController {
     /* ---------- MÉTODOS AUXILIARES DE ERRO ---------- */
     private ResponseEntity<Object> erro404(IllegalArgumentException e) {
         return ResponseEntity.status(404).body(
-                Map.of("codigo", "NAO_ENCONTRADO", "mensagem", e.getMessage())
+                Map.of(COD, CODIGO_NAO_ENCONTRADO, MSG, e.getMessage())
         );
     }
 

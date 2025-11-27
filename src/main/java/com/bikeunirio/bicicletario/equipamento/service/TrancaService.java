@@ -5,12 +5,14 @@ import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
 import com.bikeunirio.bicicletario.equipamento.repository.TotemRepository;
 import com.bikeunirio.bicicletario.equipamento.repository.TrancaRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Service
 public class TrancaService {
     private static final String TRANCA_NAO_ENCONTRADO = "Tranca não encontrada: ";
@@ -113,7 +115,7 @@ public class TrancaService {
 
         tranca.setStatus(StatusTranca.OCUPADA);
 
-        System.out.println("Tranca atualizada com sucesso!");
+        log.info("Tranca {} atualizada com sucesso!", tranca.getId());
         return trancaRepository.save(tranca);
     }
 

@@ -16,6 +16,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/tranca")
 public class TrancaController {
+    private static final String MSG_NAO_ENCONTRADA = "não encontrada";
+    private static final String CODIGO_NAO_ENCONTRADO = "NAO ENCONTRADO";
+    private static final String CODIGO_DADOS_INVALIDOS = "DADOS INVALIDOS";
+    private static final String COD = "codigo";
+    private static final String MSG = "mensagem";
 
     private final TrancaService trancaService;
 
@@ -37,8 +42,6 @@ public class TrancaController {
     @PostMapping
     public ResponseEntity<Object> cadastrarTranca(@RequestBody TrancaDTO trancaDTO) {
         try {
-            // RN: Verificar se o ID da bicicleta é válido e se a bicicleta existe
-            Bicicleta bicicleta = null;
             // Verifica se o ID da bicicleta foi enviado e é válido
             if (trancaDTO.getBicicletaId() != null && trancaDTO.getBicicletaId() <= 0) {
                 throw new IllegalArgumentException("ID da bicicleta deve ser um valor positivo.");
@@ -48,10 +51,6 @@ public class TrancaController {
             Tranca tranca = new Tranca();
             tranca.setModelo(trancaDTO.getModelo());
             tranca.setAnoDeFabricacao(trancaDTO.getAnoDeFabricacao());
-            tranca.setBicicleta(bicicleta);
-
-            // Se a entidade Tranca tem número e status, eles devem ser inicializados
-            // ou definidos no serviço/entidade. Não podem ser passados pelo DTO.
 
             Tranca novaTranca = trancaService.cadastrarTranca(tranca);
             return ResponseEntity.ok(novaTranca);
@@ -96,7 +95,7 @@ public class TrancaController {
              return ResponseEntity.ok(atualizada);
 
          } catch (IllegalArgumentException e) {
-             if (e.getMessage().contains("não encontrada")) {
+             if (e.getMessage().contains(MSG_NAO_ENCONTRADA)) {
                  return erro404(e);
              }
              return erro422(e);
@@ -132,7 +131,7 @@ public class TrancaController {
             Tranca atualizada = trancaService.alterarStatusDaTranca(idTranca, acao);
             return ResponseEntity.ok(atualizada);
         } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrada")) {
+            if (e.getMessage().contains(MSG_NAO_ENCONTRADA)) {
                 return erro404(e);
             }
             return erro422(e);
@@ -147,7 +146,7 @@ public class TrancaController {
             Object bicicleta = trancaService.trancar(idTranca);
             return ResponseEntity.ok(bicicleta);
         } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrada")) {
+            if (e.getMessage().contains(MSG_NAO_ENCONTRADA)) {
                 return erro404(e);
             }
             return erro422(e);
@@ -161,7 +160,7 @@ public class TrancaController {
             Tranca tranca = trancaService.destrancar(idTranca);
             return ResponseEntity.ok(tranca);
         } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("não encontrada")) {
+            if (e.getMessage().contains(MSG_NAO_ENCONTRADA)) {
                 return erro404(e);
             }
             return erro422(e);
@@ -195,11 +194,11 @@ public class TrancaController {
                     dto.getMatriculaReparador()
             );
 
-            return ResponseEntity.ok(Map.of("mensagem", mensagem));
+            return ResponseEntity.ok(Map.of(MSG, mensagem));
 
         } catch (IllegalArgumentException e) {
             // E1 – número inválido → 404
-            if (e.getMessage().contains("inválido")) {
+            if (e.getMessage().contains(CODIGO_DADOS_INVALIDOS)) {
                 return erro404(e);
             }
             // A2 ou outro erro → 422
@@ -217,7 +216,7 @@ public class TrancaController {
 
     private ResponseEntity<Object> erro422(IllegalArgumentException e) {
         return ResponseEntity.status(422).body(
-                Map.of("codigo", "DADOS_INVALIDOS", "mensagem", e.getMessage())
+                Map.of(COD, CODIGO_DADOS_INVALIDOS, MSG, e.getMessage())
         );
     }
 }

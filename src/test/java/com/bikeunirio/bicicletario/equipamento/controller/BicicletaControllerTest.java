@@ -368,15 +368,15 @@ class BicicletaControllerTest {
     @Test
     void deveRetirarBicicletaDaRedeComSucesso() {
 
-        RetiradaBicicletaRequestDTO dto = new RetiradaBicicletaRequestDTO();
-        dto.setIdTranca(10L);
-        dto.setIdFuncionario(1L);
-        dto.setStatusAcaoReparador("reparo");
+        RetiradaBicicletaRequestDTO bicicleta = new RetiradaBicicletaRequestDTO();
+        bicicleta.setIdTranca(10L);
+        bicicleta.setIdFuncionario(1L);
+        bicicleta.setStatusAcaoReparador("reparo");
 
         when(service.retirarBicicletaDaRede(10L, 1L, "reparo"))
                 .thenReturn("Bicicleta retirada com sucesso.");
 
-        ResponseEntity<Object> resposta = controller.retirarBicicletaDaRede(dto);
+        ResponseEntity<Object> resposta = controller.retirarBicicletaDaRede(bicicleta);
 
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals(
@@ -391,15 +391,15 @@ class BicicletaControllerTest {
     @Test
     void deveRetornarErro422QuandoFalharAoRetirarBicicletaDaRede() {
 
-        RetiradaBicicletaRequestDTO dto = new RetiradaBicicletaRequestDTO();
-        dto.setIdTranca(20L);
-        dto.setIdFuncionario(2L);
-        dto.setStatusAcaoReparador("reparo");
+        RetiradaBicicletaRequestDTO bicicleta = new RetiradaBicicletaRequestDTO();
+        bicicleta.setIdTranca(20L);
+        bicicleta.setIdFuncionario(2L);
+        bicicleta.setStatusAcaoReparador("reparo");
 
         when(service.retirarBicicletaDaRede(20L, 2L, "reparo"))
                 .thenThrow(new IllegalArgumentException("Dados inválidos."));
 
-        ResponseEntity<Object> resposta = controller.retirarBicicletaDaRede(dto);
+        ResponseEntity<Object> resposta = controller.retirarBicicletaDaRede(bicicleta);
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
         assertEquals(

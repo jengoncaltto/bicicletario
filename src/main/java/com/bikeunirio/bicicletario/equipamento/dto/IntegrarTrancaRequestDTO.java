@@ -8,6 +8,7 @@ import lombok.Setter;
 public class IntegrarTrancaRequestDTO {
     private Integer numeroTranca;
     private Long matriculaReparador;
+    private Long idTotem;
 
     public IntegrarTrancaRequestDTO() {
 

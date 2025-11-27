@@ -173,7 +173,8 @@ public class TrancaController {
         try {
             Tranca tranca = trancaService.integrarNaRede(
                     dto.getNumeroTranca(),
-                    dto.getMatriculaReparador()
+                    dto.getMatriculaReparador(),
+                    dto.getIdTotem()
             );
             return ResponseEntity.ok(tranca);
 
@@ -198,7 +199,7 @@ public class TrancaController {
 
         } catch (IllegalArgumentException e) {
             // E1 – número inválido → 404
-            if (e.getMessage().contains(CODIGO_DADOS_INVALIDOS)) {
+            if (e.getMessage().contains(MSG_NAO_ENCONTRADA)) {
                 return erro404(e);
             }
             // A2 ou outro erro → 422

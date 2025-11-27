@@ -4,6 +4,7 @@ import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import com.bikeunirio.bicicletario.equipamento.entity.Totem;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
+import com.bikeunirio.bicicletario.equipamento.repository.TotemRepository;
 import com.bikeunirio.bicicletario.equipamento.repository.TrancaRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +29,9 @@ class TrancaServiceTest {
 
     @Mock
     private EmailService emailService;
+
+    @Mock
+    private TotemRepository totemRepository;
 
     @Spy
     @InjectMocks
@@ -261,38 +265,75 @@ class TrancaServiceTest {
     }
 
     /*-----------integrar na rede----------*/
-
     @Test
     void deveIntegrarTrancaNovaNaRede() {
+
+        // ARRANGE
+        Integer numeroTranca = 10;
+        Long matricula = 999L;
+        Long idTotem = 5L;
 
         Tranca tr = new Tranca();
         tr.setNumero(10);
         tr.setStatus(StatusTranca.NOVA);
 
-        doReturn(tr).when(trancaService).buscarPorNumero(10);
+        Totem totem = new Totem();
+        totem.setId(idTotem);
+        totem.setTrancas(new ArrayList<>());
 
-        when(trancaRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+        // Mock buscar tranca
+        doReturn(tr).when(trancaService).buscarPorNumero(numeroTranca);
+
+        // Mock buscar totem
+        when(totemRepository.findById(idTotem))
+                .thenReturn(Optional.of(totem));
+
+        // Mock salvar
+        when(trancaRepository.save(any()))
+                .thenAnswer(inv -> inv.getArgument(0));
+
         doNothing().when(emailService).enviarEmail(any(), any(), any());
 
-        Tranca resultado = trancaService.integrarNaRede(10, 999L);
+        // ACT
+        Tranca resultado = trancaService.integrarNaRede(numeroTranca, matricula, idTotem);
 
+        // ASSERT
         assertEquals(StatusTranca.LIVRE, resultado.getStatus());
-        assertEquals(999L, resultado.getMatriculaReparador());
+        assertEquals(matricula, resultado.getMatriculaReparador());
         assertNotNull(resultado.getDataInsercao());
+
+        // associação correta
+        assertEquals(totem, resultado.getTotem());
+        assertTrue(totem.getTrancas().contains(resultado));
+
         verify(trancaRepository).save(tr);
+        verify(totemRepository).save(totem);
     }
+
 
     @Test
     void deveLancarErroSeStatusInvalidoParaIntegrar() {
 
+        Integer numeroTranca = 10;
+        Long matricula = 123L;
+        Long idTotem = 5L;
+
         Tranca tr = new Tranca();
         tr.setStatus(StatusTranca.LIVRE); // inválido
 
-        doReturn(tr).when(trancaService).buscarPorNumero(10);
+        Totem totem = new Totem();
+        totem.setId(idTotem);
+
+        // Mock buscar tranca
+        doReturn(tr).when(trancaService).buscarPorNumero(numeroTranca);
+
+        // Mock totem
+        when(totemRepository.findById(idTotem))
+                .thenReturn(Optional.of(totem));
 
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
-                () -> trancaService.integrarNaRede(10, 123L)
+                () -> trancaService.integrarNaRede(numeroTranca, matricula, idTotem)
         );
 
         assertEquals("A tranca deve estar 'nova' ou 'em reparo' para ser integrada.", ex.getMessage());

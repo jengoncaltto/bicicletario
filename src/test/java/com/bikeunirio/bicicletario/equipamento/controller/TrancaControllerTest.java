@@ -373,18 +373,23 @@ class TrancaControllerTest {
         IntegrarTrancaRequestDTO dto = new IntegrarTrancaRequestDTO();
         dto.setNumeroTranca(100);
         dto.setMatriculaReparador(123L);
+        dto.setIdTotem(7L);  // obrigatório!
 
         Tranca trancaIntegrada = new Tranca();
         trancaIntegrada.setNumero(100);
 
-        when(trancaService.integrarNaRede(100, 123L)).thenReturn(trancaIntegrada);
+        // Mock correto com 3 argumentos
+        when(trancaService.integrarNaRede(100, 123L, 7L))
+                .thenReturn(trancaIntegrada);
 
+        // Act
         ResponseEntity<Object> resposta = trancaController.integrarNaRede(dto);
 
+        // Assert
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals(trancaIntegrada, resposta.getBody());
 
-        verify(trancaService).integrarNaRede(100, 123L);
+        verify(trancaService).integrarNaRede(100, 123L, 7L);
     }
 
     @Test
@@ -392,8 +397,9 @@ class TrancaControllerTest {
         IntegrarTrancaRequestDTO dto = new IntegrarTrancaRequestDTO();
         dto.setNumeroTranca(50);
         dto.setMatriculaReparador(999L);
+        dto.setIdTotem(3L); // obrigatório!
 
-        when(trancaService.integrarNaRede(50, 999L))
+        when(trancaService.integrarNaRede(50, 999L, 3L))
                 .thenThrow(new IllegalArgumentException("Falha ao integrar tranca."));
 
         ResponseEntity<Object> resposta = trancaController.integrarNaRede(dto);
@@ -403,8 +409,9 @@ class TrancaControllerTest {
         Map<String, Object> body = (Map<String, Object>) resposta.getBody();
         assertEquals("Falha ao integrar tranca.", body.get("mensagem"));
 
-        verify(trancaService).integrarNaRede(50, 999L);
+        verify(trancaService).integrarNaRede(50, 999L, 3L);
     }
+
 
     /* ---------- retirarTrancaDaRede ---------- */
     @Test
@@ -435,17 +442,18 @@ class TrancaControllerTest {
         dto.setMatriculaReparador(111L);
 
         when(trancaService.retirarTrancaDaRede(-1, "REPARO", 111L))
-                .thenThrow(new IllegalArgumentException("Número inválido."));
+                .thenThrow(new IllegalArgumentException("Tranca não encontrada"));
 
         ResponseEntity<Object> resposta = trancaController.retirarTrancaDaRede(dto);
 
         assertEquals(HttpStatus.NOT_FOUND, resposta.getStatusCode());
 
         Map<String, Object> body = (Map<String, Object>) resposta.getBody();
-        assertEquals("Número inválido.", body.get("mensagem"));
+        assertEquals("Tranca não encontrada", body.get("mensagem"));
 
         verify(trancaService).retirarTrancaDaRede(-1, "REPARO", 111L);
     }
+
 
     @Test
     void deveRetornar422AoFalharRetiradaDaRede() {

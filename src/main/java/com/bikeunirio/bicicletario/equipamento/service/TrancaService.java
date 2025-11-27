@@ -3,6 +3,7 @@ package com.bikeunirio.bicicletario.equipamento.service;
 import com.bikeunirio.bicicletario.equipamento.entity.Totem;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
+import com.bikeunirio.bicicletario.equipamento.repository.TotemRepository;
 import com.bikeunirio.bicicletario.equipamento.repository.TrancaRepository;
 import org.springframework.stereotype.Service;
 
@@ -17,10 +18,12 @@ public class TrancaService {
 
     private final TrancaRepository trancaRepository;
     private final EmailService emailService;
+    private final TotemRepository totemRepository;
 
-    public TrancaService(TrancaRepository trancaRepository,  EmailService emailService) {
+    public TrancaService(TrancaRepository trancaRepository,  EmailService emailService, TotemRepository totemRepository) {
         this.trancaRepository = trancaRepository;
         this.emailService = emailService;
+        this.totemRepository = totemRepository;
     }
 
     /* ---------- LISTAR TODAS AS TRANÇAS ---------- */
@@ -127,31 +130,45 @@ public class TrancaService {
         return trancaRepository.save(tranca);
     }
 
-    public Tranca integrarNaRede(Integer numeroTranca, Long matriculaReparador) {
+    public Tranca integrarNaRede(Integer numeroTranca, Long matriculaReparador, Long idTotem) {
 
         Tranca tranca = buscarPorNumero(numeroTranca);
+        Totem totem = totemRepository.findById(idTotem)
+                .orElseThrow(() -> new IllegalArgumentException("Totem não encontrado"));
 
         // Pré-condições
         if (tranca.getStatus() != StatusTranca.NOVA && tranca.getStatus() != StatusTranca.EM_REPARO) {
             throw new IllegalArgumentException("A tranca deve estar 'nova' ou 'em reparo' para ser integrada.");
         }
 
-        // R3 – Se estava em reparo, verificar se é o mesmo reparador
         if (tranca.getStatus() == StatusTranca.EM_REPARO &&
                 !Objects.equals(tranca.getMatriculaReparador(), matriculaReparador)) {
 
             throw new IllegalArgumentException("Apenas o reparador que retirou a tranca pode devolvê-la.");
         }
 
-        // R1 – Registrar dados da inclusão
+        // Verifica se já está em outro totem
+        if (tranca.getTotem() != null && !tranca.getTotem().equals(totem)) {
+            throw new IllegalArgumentException("A tranca já está associada a outro totem.");
+        }
+
+        // Se o totem já contiver essa tranca, evitar duplicação
+        if (totem.getTrancas().contains(tranca)) {
+            throw new IllegalArgumentException("A tranca já se encontra registrada neste totem.");
+        }
+
+        // R1 – Registrar inclusão
         tranca.setDataInsercao(LocalDateTime.now());
         tranca.setMatriculaReparador(matriculaReparador);
 
-        // Altera status
+        // Associação à estrutura física (Totem)
+        tranca.setTotem(totem);
+        totem.getTrancas().add(tranca);
+
+        // Status final da integração
         tranca.setStatus(StatusTranca.LIVRE);
 
         try {
-            // R2 – Email
             emailService.enviarEmail(
                     "reparador@empresa.com",
                     "Inclusão de Tranca na Rede",
@@ -163,10 +180,10 @@ public class TrancaService {
                     )
             );
         } catch (Exception e) {
-            // E2
             throw new IllegalArgumentException("Não foi possível enviar o email.");
         }
 
+        totemRepository.save(totem);
         return trancaRepository.save(tranca);
     }
 

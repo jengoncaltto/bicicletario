@@ -2,11 +2,13 @@ package com.bikeunirio.bicicletario.equipamento.entity;
 
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
 import jakarta.persistence.*;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tranca")
+@Data
 public class Tranca {
 
     @Id
@@ -48,39 +50,6 @@ public class Tranca {
          */
     }
 
-    // --- Getters e Setters ---
-    public Long getId() { return id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Integer getNumero() { return numero; }
-    public void setNumero(Integer numero) { this.numero = numero; }
-    public String getModelo() { return modelo; }
-    public void setModelo(String modelo) { this.modelo = modelo; }
-    public String getAnoDeFabricacao() { return anoDeFabricacao; }
-    public void setAnoDeFabricacao(String anoDeFabricacao) { this.anoDeFabricacao = anoDeFabricacao; }
-    public StatusTranca getStatus() { return status; }
-    public void setStatus(StatusTranca status) { this.status = status; }
-    public Bicicleta getBicicleta() { return bicicleta; }
-    public void setBicicleta(Bicicleta bicicleta) { this.bicicleta = bicicleta; }
-    public Totem getTotem() {
-        return totem;
-    }
-    public void setTotem(Totem totem) {
-        this.totem = totem;
-    }
-    public LocalDateTime getDataInsercao() { return dataInsercao; }
-    public void setDataInsercao(LocalDateTime dataInsercao) {
-        this.dataInsercao = dataInsercao;
-    }
-    public Long getMatriculaReparador() {
-        return matriculaReparador;
-    }
-
-    public void setMatriculaReparador(Long matriculaReparador) {
-        this.matriculaReparador = matriculaReparador;
-    }
 
 }

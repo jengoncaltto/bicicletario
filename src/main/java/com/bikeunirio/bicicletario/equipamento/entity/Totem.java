@@ -25,8 +25,6 @@ public class Totem {
     @OneToMany(mappedBy = "totem", cascade = CascadeType.ALL, orphanRemoval = false)
     private List<Tranca> trancas;
 
-
-
     public Totem() {
         /**
          * Construtor padrão obrigatório pelo JPA/Hibernate.
@@ -34,13 +32,4 @@ public class Totem {
          */
     }
 
-    // --- Getters e Setters ---
-    public Long getId() { return id; }
-    public String getLocalizacao() { return localizacao; }
-    public void setLocalizacao(String localizacao) { this.localizacao = localizacao; }
-    public String getDescricao() { return descricao; }
-    public void setDescricao(String descricao) { this.descricao = descricao; }
-    public List<Bicicleta> getBicicletas() { return bicicletas; }
-    public List<Tranca> getTrancas() { return trancas; }
-    public void setTrancas(List<Tranca> trancas) { this.trancas = trancas; }
 }

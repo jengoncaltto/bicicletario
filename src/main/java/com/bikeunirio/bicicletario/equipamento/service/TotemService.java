@@ -66,7 +66,6 @@ public class TotemService {
         return repository.save(existente);
     }
 
-
     private Totem acharTotem(Long idTotem) {
         return repository.findById(idTotem)
                 .orElseThrow(() -> new IllegalArgumentException("não encontrado: " + idTotem));

@@ -97,42 +97,46 @@ public class BicicletaService {
 
     /* ---------- UC08: Incluir Bicicleta na Rede de Totens ---------- */
     public String incluirBicicletaNaRede(Long idBicicleta, Long idTranca, Long matriculaReparador) {
-        Bicicleta bicicleta = retornarBicicleta(idBicicleta);
+        // 1. Buscar Bicicleta e Tranca (Correção do erro lógico)
+        Bicicleta bicicleta = bicicletaRepository.findById(idBicicleta)
+                .orElseThrow(() -> new IllegalArgumentException("Bicicleta não encontrada."));
 
-        if (bicicleta.getTranca() == null) {
-            throw new IllegalArgumentException("Bicicleta não está associada a nenhuma tranca.");
-        }
+        Tranca tranca = trancaRepository.findById(idTranca)
+                .orElseThrow(() -> new IllegalArgumentException("Tranca não encontrada."));
 
+        // [R3] Validação do reparador
         if (bicicleta.getStatus() == StatusBicicleta.EM_REPARO &&
                 !Objects.equals(bicicleta.getMatriculaReparador(), matriculaReparador)) {
-
             throw new IllegalArgumentException("Apenas o reparador que retirou a bicicleta pode devolvê-la.");
         }
 
-        Tranca tranca = bicicleta.getTranca();
-
-        // [E3] Bicicleta em uso
+        // [E3] Validação Em Uso
         if (bicicleta.getStatus() == StatusBicicleta.EM_USO) {
             throw new IllegalArgumentException("A bicicleta está em uso e não pode ser incluída na rede.");
         }
 
-        // [Pré-condição] status válido
+        // [Pré-condição] Status bicicleta válido
         if (bicicleta.getStatus() != StatusBicicleta.NOVA && bicicleta.getStatus() != StatusBicicleta.EM_REPARO) {
             throw new IllegalArgumentException("Bicicleta não está apta para inclusão (deve ser NOVA ou EM_REPARO).");
         }
 
-        // [Pré-condição] tranca disponível
+        // [Pré-condição] Tranca disponível (Verifica a tranca buscada pelo ID, não a da bicicleta)
         if (tranca.getStatus() != StatusTranca.LIVRE) {
             throw new IllegalArgumentException("A tranca selecionada não está disponível.");
         }
 
-        // [R1] Registrar inclusão
+         trancaService.trancar(matriculaReparador);
+
+        // [R1] Atualizar dados e fazer a associação
         bicicleta.setDataInsercao(LocalDateTime.now());
         bicicleta.setStatus(StatusBicicleta.DISPONIVEL);
+
         tranca.setStatus(StatusTranca.OCUPADA);
-        tranca.setBicicleta(bicicleta);
+        tranca.setBicicleta(bicicleta); // Associa a bike na tranca
+        bicicleta.setTranca(tranca);    // Associa a tranca na bike (importante manter consistência)
 
         bicicletaRepository.save(bicicleta);
+        trancaRepository.save(tranca); // Salvar a tranca também é importante
 
         // [R2] Notificação por email
         try {

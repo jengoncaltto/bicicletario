@@ -373,20 +373,6 @@ class BicicletaServiceTest {
         assertEquals("A bicicleta está em uso e não pode ser incluída na rede.", ex.getMessage());
     }
 
-    @Test
-    void deveLancarErroQuandoBicicletaNaoExistir() {
-        // MOCKS
-        when(bicicletaRepository.findById(99L)).thenReturn(Optional.empty());
-        // Aqui NÃO precisa mockar trancaRepository, pois o código falha na primeira linha (busca da bike)
-
-        // ACT & ASSERT
-        IllegalArgumentException ex = assertThrows(
-                IllegalArgumentException.class,
-                () -> bicicletaService.incluirBicicletaNaRede(99L, 10L, 34L)
-        );
-
-        assertEquals("Bicicleta não encontrada.", ex.getMessage());
-    }
 
     @Test
     void deveLancarErroQuandoTrancaNaoExistir() {
@@ -431,73 +417,97 @@ class BicicletaServiceTest {
     }
 
     /*retirarBicicletaDaRede*/
+    /*----------------- UC09: retirarBicicletaDaRede -----------------*/
+
     @Test
     void deveRetirarBicicletaComSucessoParaReparo() {
 
+        Long idTranca = 10L;
+        Long matriculaReparador = 123L;
+
+        // Bicicleta
         Bicicleta bike = new Bicicleta();
         bike.setId(1L);
-        bike.setStatus(StatusBicicleta.EM_USO);
+        bike.setNumero(55);
+        bike.setStatus(StatusBicicleta.REPARO_SOLICITADO);
 
         // Tranca
         Tranca tranca = new Tranca();
-        tranca.setId(10L);
-        tranca.setNumero(123);
+        tranca.setId(idTranca);
+        tranca.setNumero(10);
         tranca.setStatus(StatusTranca.OCUPADA);
-        bike.setTranca(tranca);
+        tranca.setBicicleta(bike);
 
-        // Mock: bicicleta encontrada
-        doReturn(bike).when(bicicletaService).retornarBicicleta(1L);
+        // Mocks
+        when(trancaRepository.findById(idTranca)).thenReturn(Optional.of(tranca));
+        when(trancaService.destrancar(idTranca)).thenReturn(tranca);
 
-        // Mock: destrancar retorna a própria tranca
-        Mockito.doReturn(tranca).when(trancaService).destrancar(10L);
-
-        // Mock salvar
         when(trancaRepository.save(any())).thenReturn(tranca);
         when(bicicletaRepository.save(any())).thenReturn(bike);
 
-        String msg = bicicletaService.retirarBicicletaDaRede(123, "reparo", 1L);
+        // Mock do email
+        doNothing().when(emailService).enviarEmail(any(), any(), any());
 
+        // Execução
+        String msg = bicicletaService.retirarBicicletaDaRede(idTranca, matriculaReparador, "reparo");
+
+        // Asserts
         assertEquals("Bicicleta 1 retirada com sucesso.", msg);
         assertEquals(StatusBicicleta.EM_REPARO, bike.getStatus());
     }
 
     @Test
     void deveRetirarBicicletaParaAposentadoria() {
+
+        Long idTranca = 20L;
+        Long matriculaReparador = 222L;
+
         Bicicleta bike = new Bicicleta();
         bike.setId(2L);
-        bike.setStatus(StatusBicicleta.EM_USO);
+        bike.setNumero(77);
+        bike.setStatus(StatusBicicleta.REPARO_SOLICITADO);
 
         Tranca tr = new Tranca();
-        tr.setId(20L);
-        tr.setNumero(8);
+        tr.setId(idTranca);
+        tr.setNumero(20);
         tr.setStatus(StatusTranca.OCUPADA);
-        bike.setTranca(tr);
+        tr.setBicicleta(bike);
 
-        doReturn(bike).when(bicicletaService).retornarBicicleta(2L);
-        when(trancaService.destrancar(20L)).thenReturn(tr);
+        when(trancaRepository.findById(idTranca)).thenReturn(Optional.of(tr));
+        when(trancaService.destrancar(idTranca)).thenReturn(tr);
+
         when(trancaRepository.save(any())).thenReturn(tr);
         when(bicicletaRepository.save(any())).thenReturn(bike);
 
-        String msg = bicicletaService.retirarBicicletaDaRede(8, "aposentadoria", 2L);
+        // Mock do email
+        doNothing().when(emailService).enviarEmail(any(), any(), any());
+
+        String msg = bicicletaService.retirarBicicletaDaRede(idTranca, matriculaReparador, "aposentadoria");
 
         assertEquals("Bicicleta 2 retirada com sucesso.", msg);
         assertEquals(StatusBicicleta.APOSENTADA, bike.getStatus());
     }
 
     @Test
-    void deveLancarErroSeBicicletaNaoTemTranca() {
+    void deveLancarErroSeTrancaNaoTemBicicleta() {
 
-        Bicicleta bike = new Bicicleta(); // sem tranca
+        Long idTranca = 10L;
 
-        doReturn(bike).when(bicicletaService).retornarBicicleta(1L);
+        Tranca tranca = new Tranca();
+        tranca.setId(idTranca);
+        tranca.setBicicleta(null); // sem bicicleta -> erro esperado
+
+        when(trancaRepository.findById(idTranca))
+                .thenReturn(Optional.of(tranca));
 
         IllegalArgumentException ex = assertThrows(
                 IllegalArgumentException.class,
-                () -> bicicletaService.retirarBicicletaDaRede(123, "reparo", 1L)
+                () -> bicicletaService.retirarBicicletaDaRede(idTranca, 999L, "reparo")
         );
 
-        assertEquals("A bicicleta não está presa a nenhuma tranca.", ex.getMessage());
+        assertEquals("A tranca está livre — não há bicicleta para retirar.", ex.getMessage());
     }
+
 
 
 

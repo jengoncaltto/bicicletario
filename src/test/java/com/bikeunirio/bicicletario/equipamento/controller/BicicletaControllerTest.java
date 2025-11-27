@@ -368,15 +368,15 @@ class BicicletaControllerTest {
     @Test
     void deveRetirarBicicletaDaRedeComSucesso() {
 
-        RetiradaBicicletaRequestDTO bicicletaRequestDTO = new RetiradaBicicletaRequestDTO();
-        bicicletaRequestDTO.setNumeroTranca(10);
-        bicicletaRequestDTO.setStatusAcaoReparador("reparo");
-        bicicletaRequestDTO.setIdBicicleta(1L);
+        RetiradaBicicletaRequestDTO dto = new RetiradaBicicletaRequestDTO();
+        dto.setIdTranca(10L);
+        dto.setIdFuncionario(1L);
+        dto.setStatusAcaoReparador("reparo");
 
-        when(service.retirarBicicletaDaRede(10, "reparo", 1L))
+        when(service.retirarBicicletaDaRede(10L, 1L, "reparo"))
                 .thenReturn("Bicicleta retirada com sucesso.");
 
-        ResponseEntity<Object> resposta = controller.retirarBicicletaDaRede(bicicletaRequestDTO);
+        ResponseEntity<Object> resposta = controller.retirarBicicletaDaRede(dto);
 
         assertEquals(HttpStatus.OK, resposta.getStatusCode());
         assertEquals(
@@ -384,21 +384,22 @@ class BicicletaControllerTest {
                 ((Map<?, ?>) resposta.getBody()).get("mensagem")
         );
 
-        verify(service).retirarBicicletaDaRede(10, "reparo", 1L);
+        verify(service).retirarBicicletaDaRede(10L, 1L, "reparo");
     }
+
 
     @Test
     void deveRetornarErro422QuandoFalharAoRetirarBicicletaDaRede() {
 
-        RetiradaBicicletaRequestDTO retiradaBicicletaRequestDTO = new RetiradaBicicletaRequestDTO();
-        retiradaBicicletaRequestDTO.setNumeroTranca(20);
-        retiradaBicicletaRequestDTO.setStatusAcaoReparador("reparo");
-        retiradaBicicletaRequestDTO.setIdBicicleta(2L);
+        RetiradaBicicletaRequestDTO dto = new RetiradaBicicletaRequestDTO();
+        dto.setIdTranca(20L);
+        dto.setIdFuncionario(2L);
+        dto.setStatusAcaoReparador("reparo");
 
-        when(service.retirarBicicletaDaRede(20, "reparo", 2L))
+        when(service.retirarBicicletaDaRede(20L, 2L, "reparo"))
                 .thenThrow(new IllegalArgumentException("Dados inválidos."));
 
-        ResponseEntity<Object> resposta = controller.retirarBicicletaDaRede(retiradaBicicletaRequestDTO);
+        ResponseEntity<Object> resposta = controller.retirarBicicletaDaRede(dto);
 
         assertEquals(HttpStatus.UNPROCESSABLE_ENTITY, resposta.getStatusCode());
         assertEquals(
@@ -406,7 +407,7 @@ class BicicletaControllerTest {
                 ((Map<?, ?>) resposta.getBody()).get("mensagem")
         );
 
-        verify(service).retirarBicicletaDaRede(20, "reparo", 2L);
+        verify(service).retirarBicicletaDaRede(20L, 2L, "reparo");
     }
 
     /*------------ */

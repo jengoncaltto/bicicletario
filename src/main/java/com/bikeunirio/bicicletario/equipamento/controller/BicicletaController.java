@@ -124,14 +124,17 @@ public class BicicletaController {
     public ResponseEntity<Object> retirarBicicletaDaRede(@RequestBody RetiradaBicicletaRequestDTO dto) {
         try {
             String mensagem = bicicletaService.retirarBicicletaDaRede(
-                    dto.getNumeroTranca(),
-                    dto.getStatusAcaoReparador(),   // "reparo" ou "aposentadoria"
-                    dto.getIdBicicleta()
+                    dto.getIdTranca(),
+                    dto.getIdFuncionario(),
+                    dto.getStatusAcaoReparador()
             );
-
             return ResponseEntity.ok(Map.of(MSG, mensagem));
 
         } catch (IllegalArgumentException e) {
+
+            if (e.getMessage().contains(MSG_NAO_ENCONTRADA))
+                return erro404(e);
+
             return erro422(e);
         }
     }

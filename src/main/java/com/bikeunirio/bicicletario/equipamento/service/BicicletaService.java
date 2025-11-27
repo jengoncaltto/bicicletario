@@ -98,8 +98,7 @@ public class BicicletaService {
     /* ---------- UC08: Incluir Bicicleta na Rede de Totens ---------- */
     public String incluirBicicletaNaRede(Long idBicicleta, Long idTranca, Long matriculaReparador) {
         // 1. Buscar Bicicleta e Tranca
-        Bicicleta bicicleta = bicicletaRepository.findById(idBicicleta)
-                .orElseThrow(() -> new IllegalArgumentException("Bicicleta não encontrada."));
+        Bicicleta bicicleta = retornarBicicleta(idBicicleta);
 
         Tranca tranca = trancaRepository.findById(idTranca)
                 .orElseThrow(() -> new IllegalArgumentException("Tranca não encontrada."));
@@ -162,63 +161,68 @@ public class BicicletaService {
     }
 
     /*-----------------UC09*---------------*/
-    public String retirarBicicletaDaRede(Integer numeroTranca, String operacao, Long idBicicleta) {
+    public String retirarBicicletaDaRede(Long idTranca, Long matriculaReparador, String operacao) {
 
-        // Recuperar bicicleta
-        Bicicleta bicicleta = retornarBicicleta(idBicicleta);
-        Tranca tranca = bicicleta.getTranca();
+        // 1 — Buscar tranca
+        Tranca tranca = trancaRepository.findById(idTranca)
+                .orElseThrow(() -> new IllegalArgumentException("Tranca não encontrada"));
 
-        if (tranca == null) {
-            throw new IllegalArgumentException("A bicicleta não está presa a nenhuma tranca.");
-        }
-        // ------------- [E1] Número da tranca inválido -----------------------
-        if (!numeroTranca.equals(tranca.getNumero())) {
-            throw new IllegalArgumentException("Número da tranca inválido.");
-        }
-        // ------------- [A2] Verificações de falha do UC -----------------------
-        if (bicicleta.getStatus() == StatusBicicleta.DISPONIVEL) {
-            throw new IllegalArgumentException("A bicicleta está disponível — não pode ser retirada.");
-        }
-        if (tranca.getStatus() == StatusTranca.LIVRE) {
+        // 2 — Recuperar bicicleta presa
+        Bicicleta bicicleta = tranca.getBicicleta();
+        if (bicicleta == null)
             throw new IllegalArgumentException("A tranca está livre — não há bicicleta para retirar.");
-        }
 
+        // 3 — Bicicleta deve estar com reparo solicitado
+        if (bicicleta.getStatus() != StatusBicicleta.REPARO_SOLICITADO)
+            throw new IllegalArgumentException("A bicicleta não está com reparo solicitado.");
 
-        // A2.4 Abrir tranca
-        trancaService.destrancar(tranca.getId());
+        // 4 — Abertura da tranca
+        trancaService.destrancar(idTranca);
 
-        // A2.5 Retirar bicicleta
+        // 5 — Remover a bicicleta da tranca
         tranca.setBicicleta(null);
 
-        // A2.6 Ajustar status da bicicleta conforme operação
-        if (operacao.equalsIgnoreCase("aposentadoria")) {
-            bicicleta.setStatus(StatusBicicleta.APOSENTADA); // A1
-        } else if (operacao.equalsIgnoreCase("reparo")) {
-            bicicleta.setStatus(StatusBicicleta.EM_REPARO); // fluxo principal
-        } else {
-            throw new IllegalArgumentException("Operação inválida. Use 'reparo' ou 'aposentadoria'.");
+        // 6 — Ajustar status da bicicleta
+        switch (operacao.toLowerCase()) {
+            case "reparo":
+                bicicleta.setStatus(StatusBicicleta.EM_REPARO);
+                break;
+            case "aposentadoria":
+                bicicleta.setStatus(StatusBicicleta.APOSENTADA);
+                break;
+            default:
+                throw new IllegalArgumentException("Operação inválida. Use 'reparo' ou 'aposentadoria'.");
         }
 
-        // Atualizar banco
+        // 7 — Registrar retirada
+        bicicleta.setDataInsercao(LocalDateTime.now());
+        bicicleta.setMatriculaReparador(matriculaReparador);
+
         trancaRepository.save(tranca);
         bicicletaRepository.save(bicicleta);
 
-        // A2.7 Registrar retirada
-        bicicleta.setDataInsercao(LocalDateTime.now());
+        // 8 — Enviar email
+        try {
+            emailService.enviarEmail(
+                    "reparador@empresa.com",
+                    "Retirada de Bicicleta",
+                    String.format(
+                            "Bicicleta %d retirada da tranca %d em %s pelo reparador %d.",
+                            bicicleta.getNumero(),
+                            tranca.getNumero(),
+                            bicicleta.getDataInsercao(),
+                            matriculaReparador
+                    )
+            );
 
-        // A2.8 Enviar e-mail
-        emailService.enviarEmail(
-                "reparador@empresa.com",
-                "Inclusão de Bicicleta na Rede",
-                String.format("Bicicleta %d incluída na tranca %d em %s.",
-                        bicicleta.getNumero(),
-                        tranca.getNumero(),
-                        bicicleta.getDataInsercao())
-        );
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Não foi possível enviar o email.");
+        }
 
-        // A2.9 Mensagem final
+        // 9 — Mensagem final
         return "Bicicleta " + bicicleta.getId() + " retirada com sucesso.";
     }
+
 
     /* funções usadas internamente na classe*/
     private Integer gerarNumeroAutomatico() {

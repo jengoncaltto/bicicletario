@@ -17,12 +17,10 @@ public class TrancaService {
 
     private final TrancaRepository trancaRepository;
     private final EmailService emailService;
-    private final Totem totem;
 
-    public TrancaService(TrancaRepository trancaRepository,  EmailService emailService, Totem totem) {
+    public TrancaService(TrancaRepository trancaRepository,  EmailService emailService) {
         this.trancaRepository = trancaRepository;
         this.emailService = emailService;
-        this.totem = totem;
     }
 
     /* ---------- LISTAR TODAS AS TRANÇAS ---------- */

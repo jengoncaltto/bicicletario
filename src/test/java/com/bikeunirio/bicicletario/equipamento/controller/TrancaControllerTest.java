@@ -3,7 +3,6 @@ package com.bikeunirio.bicicletario.equipamento.controller;
 import com.bikeunirio.bicicletario.equipamento.dto.IntegrarTrancaRequestDTO;
 import com.bikeunirio.bicicletario.equipamento.dto.RetiradaTrancaRequestDTO;
 import com.bikeunirio.bicicletario.equipamento.dto.TrancaDTO;
-import com.bikeunirio.bicicletario.equipamento.entity.Bicicleta;
 import com.bikeunirio.bicicletario.equipamento.entity.Tranca;
 import com.bikeunirio.bicicletario.equipamento.enums.StatusTranca;
 import com.bikeunirio.bicicletario.equipamento.service.TrancaService;
@@ -21,7 +20,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 @ExtendWith(MockitoExtension.class)
 class TrancaControllerTest {

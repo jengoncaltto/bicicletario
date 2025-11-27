@@ -84,7 +84,4 @@ public class Bicicleta {
     public Long getMatriculaReparador() {
         return matriculaReparador;
     }
-    public void setMatriculaReparador(Long matriculaReparador) {
-        this.matriculaReparador = matriculaReparador;
-    }
 }
